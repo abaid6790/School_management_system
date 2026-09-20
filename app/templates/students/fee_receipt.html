@@ -1,0 +1,28 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <h4 class="mb-0">Receipt {{ payment.receipt_number }}</h4>
+  <a href="{{ url_for('students.fee_receipt_pdf', student_id=student.id, fee_id=fee.id, payment_id=payment.id) }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-download"></i> Download PDF
+  </a>
+</div>
+
+<div class="card shadow-sm" style="max-width: 500px;">
+  <div class="card-body">
+    <table class="table table-sm mb-0">
+      <tr><th class="text-muted" style="width:45%">Student</th><td>{{ student.name }} ({{ student.admission_number }})</td></tr>
+      <tr><th class="text-muted">Fee Type</th><td>{{ fee.fee_type.name }}</td></tr>
+      <tr><th class="text-muted">Payment Date</th><td>{{ payment.payment_date }}</td></tr>
+      <tr><th class="text-muted">Payment Method</th><td>{{ payment.payment_method.value.replace('_', ' ').title() }}</td></tr>
+      <tr><th class="text-muted">Amount Paid (this receipt)</th><td><strong>{{ payment.amount }}</strong></td></tr>
+      <tr><th class="text-muted">Fee Amount</th><td>{{ fee.amount }}</td></tr>
+      <tr><th class="text-muted">Discount</th><td>{{ totals.discount_total }}</td></tr>
+      <tr><th class="text-muted">Total Paid So Far</th><td>{{ totals.paid_total }}</td></tr>
+      <tr><th class="text-muted">Remaining Balance</th><td>{{ totals.remaining }}</td></tr>
+      {% if payment.notes %}<tr><th class="text-muted">Notes</th><td>{{ payment.notes }}</td></tr>{% endif %}
+      <tr><th class="text-muted">Received By</th><td>{{ payment.received_by.name if payment.received_by else "—" }}</td></tr>
+    </table>
+  </div>
+</div>
+<a href="{{ url_for('students.student_fees', student_id=student.id) }}" class="btn btn-outline-secondary btn-sm mt-3">Back to Fees</a>
+{% endblock %}

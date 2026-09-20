@@ -1,0 +1,98 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Mark Attendance</h4>
+
+<form method="GET" id="mark-picker" class="row g-2 mb-4 align-items-end">
+  <div class="col-md-3">
+    <label class="form-label">Class</label>
+    <select name="class_id" id="class_id" class="form-select" required onchange="this.form.submit()">
+      <option value="">Choose a class</option>
+      {% for c in classes %}
+        <option value="{{ c.id }}" {{ "selected" if c.id == class_id else "" }}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Section</label>
+    <select name="section_id" id="section_id" class="form-select" required onchange="this.form.submit()"></select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Date</label>
+    <input type="date" name="date" value="{{ selected_date.isoformat() }}" class="form-control" onchange="this.form.submit()">
+  </div>
+</form>
+
+{% if class_id and section_id %}
+  {% if students %}
+  <form method="POST">
+    {% if existing_by_student %}
+      <div class="alert alert-info">Attendance for this date is already marked — saving again will update it.</div>
+    {% endif %}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="class_id" value="{{ class_id }}">
+    <input type="hidden" name="section_id" value="{{ section_id }}">
+    <input type="hidden" name="date" value="{{ selected_date.isoformat() }}">
+
+    <div class="mb-2">
+      <button type="button" class="btn btn-outline-success btn-sm" onclick="markAll('present')">Mark All Present</button>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr><th>Roll No.</th><th>Name</th>{% for s in statuses %}<th class="text-center">{{ s.value.title() }}</th>{% endfor %}</tr>
+          </thead>
+          <tbody>
+            {% for student in students %}
+            {% set existing = existing_by_student.get(student.id) %}
+            <tr>
+              <td>{{ student.current_roll_number or "—" }}</td>
+              <td><a href="{{ url_for('students.view_student', student_id=student.id) }}">{{ student.name }}</a></td>
+              {% for s in statuses %}
+              <td class="text-center">
+                <input type="radio" name="status_{{ student.id }}" value="{{ s.value }}" class="status-radio"
+                       data-student="{{ student.id }}" data-status="{{ s.value }}"
+                       {{ "checked" if (existing and existing.status.value == s.value) or (not existing and s.value == "present") else "" }}>
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Save Attendance</button>
+  </form>
+  {% else %}
+    <p class="text-muted">No active students found in that class/section.</p>
+  {% endif %}
+{% else %}
+  <p class="text-muted">Choose a class, section, and date to begin.</p>
+{% endif %}
+
+<script>
+  const sectionsByClass = {{ sections_by_class | tojson }};
+  const classSelect = document.getElementById("class_id");
+  const sectionSelect = document.getElementById("section_id");
+  const currentSectionId = "{{ section_id or '' }}";
+
+  function refreshSections() {
+    const sections = sectionsByClass[classSelect.value] || [];
+    sectionSelect.innerHTML = '<option value="">Choose a section</option>';
+    sections.forEach(([id, name]) => {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = name;
+      if (String(id) === currentSectionId) opt.selected = true;
+      sectionSelect.appendChild(opt);
+    });
+  }
+  refreshSections();
+  classSelect.addEventListener("change", refreshSections);
+
+  function markAll(status) {
+    document.querySelectorAll(`.status-radio[data-status="${status}"]`).forEach(el => el.checked = true);
+  }
+</script>
+{% endblock %}

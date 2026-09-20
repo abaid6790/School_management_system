@@ -1,0 +1,52 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <h4 class="mb-0">Fee Statement — {{ student.name }}</h4>
+  <a href="{{ url_for('students.fee_statement_pdf', student_id=student.id) }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-download"></i> Download PDF
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Fee Type</th><th>Due Date</th><th>Amount</th><th>Discount</th><th>Paid</th><th>Remaining</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for row in fee_rows %}
+        {% set fee = row.fee %}{% set t = row.totals %}
+        <tr>
+          <td>{{ fee.fee_type.name }}</td>
+          <td>{{ fee.due_date }}</td>
+          <td>{{ t.amount }}</td>
+          <td>{{ t.discount_total }}</td>
+          <td>{{ t.paid_total }}</td>
+          <td>{{ t.remaining }}</td>
+          <td>
+            <span class="badge {{ 'bg-success' if t.status.value == 'paid' else ('bg-warning text-dark' if t.status.value == 'partially_paid' else ('bg-danger' if t.status.value == 'overdue' else 'bg-secondary')) }}">
+              {{ t.status.value.replace('_', ' ').title() }}
+            </span>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No fees on record.</td></tr>
+        {% endfor %}
+      </tbody>
+      {% if fee_rows %}
+      <tfoot>
+        <tr class="fw-bold table-light">
+          <td colspan="2">Total</td>
+          <td>{{ fee_rows | sum(attribute="totals.amount") }}</td>
+          <td>{{ fee_rows | sum(attribute="totals.discount_total") }}</td>
+          <td>{{ fee_rows | sum(attribute="totals.paid_total") }}</td>
+          <td>{{ fee_rows | sum(attribute="totals.remaining") }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+      {% endif %}
+    </table>
+  </div>
+</div>
+<a href="{{ url_for('students.student_fees', student_id=student.id) }}" class="btn btn-outline-secondary btn-sm mt-3">Back to Fees</a>
+{% endblock %}

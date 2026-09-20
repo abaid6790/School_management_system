@@ -1,0 +1,65 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Attendance</h4>
+<div class="row g-3">
+  <div class="col-md-4">
+    <a href="{{ url_for('attendance.mark') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-calendar-check"></i> Mark Attendance</h5>
+          <p class="card-text text-muted mb-0">Mark daily attendance for a class and section.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('attendance.daily_report') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-clipboard-data"></i> Daily Report</h5>
+          <p class="card-text text-muted mb-0">See who was present, absent, or late on a given day.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('attendance.low_attendance_report') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> Low Attendance</h5>
+          <p class="card-text text-muted mb-0">Students below the minimum attendance threshold this session.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+<p class="text-muted mt-4">Per-student attendance history is shown on each student's profile page.</p>
+
+{% if current_user.role.value == "admin" %}
+<hr class="my-4">
+<h5 class="mb-3">Teacher Attendance</h5>
+<div class="row g-3">
+  <div class="col-md-4">
+    <a href="{{ url_for('teacher_attendance.mark') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-person-check"></i> Mark Teacher Attendance</h5>
+          <p class="card-text text-muted mb-0">Mark daily attendance for all teachers.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('teacher_attendance.daily_report') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-clipboard-data"></i> Daily Teacher Report</h5>
+          <p class="card-text text-muted mb-0">See teacher attendance for a given day.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+<p class="text-muted mt-3">Per-teacher attendance history is on each teacher's profile page.</p>
+{% endif %}
+{% endblock %}

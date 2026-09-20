@@ -1,0 +1,35 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">Exam Results — {{ student.name }}</h4>
+<p class="text-muted"><a href="{{ url_for('students.view_student', student_id=student.id) }}">&larr; Back to profile</a></p>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Exam</th><th>Total</th><th>Percentage</th><th>Grade</th><th>Result</th><th></th></tr></thead>
+      <tbody>
+        {% for s in summaries %}
+        <tr>
+          <td>{{ s.exam.name }}</td>
+          <td>{{ s.total_obtained }} / {{ s.total_max }}</td>
+          <td>{{ s.percentage }}%</td>
+          <td>{{ s.grade or "—" }}</td>
+          <td>
+            {% if s.overall_pass is none %}—
+            {% elif s.overall_pass %}<span class="badge bg-success">Pass</span>
+            {% else %}<span class="badge bg-danger">Fail</span>{% endif %}
+            {% if not s.complete %}<span class="badge bg-secondary">Incomplete</span>{% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('exams.student_result', exam_id=s.exam.id, student_id=student.id) }}" class="btn btn-outline-secondary btn-sm">Details</a>
+            <a href="{{ url_for('exams.report_card', exam_id=s.exam.id, student_id=student.id) }}" class="btn btn-outline-primary btn-sm">Report Card</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No exam results yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

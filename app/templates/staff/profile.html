@@ -1,0 +1,62 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-0">{{ staff_member.name }}</h4>
+    <span class="text-muted">Employee ID {{ staff_member.employee_id }} &middot; {{ staff_member.position }}</span>
+    <span class="badge {{ 'bg-success' if staff_member.employment_status.value == 'active' else 'bg-secondary' }} ms-2">
+      {{ staff_member.employment_status.value.replace('_', ' ').title() }}
+    </span>
+  </div>
+  <div>
+    <a href="{{ url_for('staff.edit_staff', staff_id=staff_member.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#statusModal">Change Status</button>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="card-title text-muted">Details</h6>
+        <table class="table table-sm mb-0">
+          <tr><th class="text-muted" style="width:40%">Department</th><td>{{ staff_member.department or "—" }}</td></tr>
+          <tr><th class="text-muted">Phone</th><td>{{ staff_member.phone or "—" }}</td></tr>
+          <tr><th class="text-muted">Address</th><td>{{ staff_member.address or "—" }}</td></tr>
+          <tr><th class="text-muted">Joining Date</th><td>{{ staff_member.joining_date }}</td></tr>
+          <tr><th class="text-muted">Salary</th><td>{{ staff_member.salary if staff_member.salary is not none else "—" }}</td></tr>
+          <tr><th class="text-muted">System Login</th>
+              <td>{% if staff_member.user %}Yes — {{ staff_member.user.email }} ({{ staff_member.user.role.value.title() }}){% else %}No login account{% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('staff.change_status', staff_id=staff_member.id) }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Change Status — {{ staff_member.name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          {{ status_form.hidden_tag() }}
+          <div class="mb-3">
+            {{ status_form.employment_status.label(class="form-label") }}
+            {{ status_form.employment_status(class="form-select") }}
+          </div>
+          {% if staff_member.user %}
+          <div class="form-text">Setting anything other than Active also blocks this staff member's login.</div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          {{ status_form.submit(class="btn btn-danger") }}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

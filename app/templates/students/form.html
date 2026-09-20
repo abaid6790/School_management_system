@@ -1,0 +1,151 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">{{ title }}</h4>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+
+      <h6 class="text-muted mb-3">Admission</h6>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.admission_number.label(class="form-label") }}
+          {{ form.admission_number(class="form-control" + (" is-invalid" if form.admission_number.errors else "")) }}
+          {% for e in form.admission_number.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.admission_date.label(class="form-label") }}
+          {{ form.admission_date(class="form-control" + (" is-invalid" if form.admission_date.errors else ""), type="date") }}
+          {% for e in form.admission_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <hr>
+      <h6 class="text-muted mb-3">Personal Information</h6>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.name.label(class="form-label") }}
+          {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+          {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-3 mb-3">
+          {{ form.date_of_birth.label(class="form-label") }}
+          {{ form.date_of_birth(class="form-control", type="date") }}
+        </div>
+        <div class="col-md-3 mb-3">
+          {{ form.gender.label(class="form-label") }}
+          {{ form.gender(class="form-select") }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.father_name.label(class="form-label") }}
+          {{ form.father_name(class="form-control") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.mother_name.label(class="form-label") }}
+          {{ form.mother_name(class="form-control") }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.cnic_or_bform.label(class="form-label") }}
+          {{ form.cnic_or_bform(class="form-control") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.blood_group.label(class="form-label") }}
+          {{ form.blood_group(class="form-select") }}
+        </div>
+      </div>
+
+      <hr>
+      <h6 class="text-muted mb-3">Contact</h6>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.phone.label(class="form-label") }}
+          {{ form.phone(class="form-control") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.email.label(class="form-label") }}
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+          {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.address.label(class="form-label") }}
+          {{ form.address(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+          {{ form.city.label(class="form-label") }}
+          {{ form.city(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+          {{ form.previous_school.label(class="form-label") }}
+          {{ form.previous_school(class="form-control") }}
+        </div>
+      </div>
+
+      <hr>
+      <h6 class="text-muted mb-3">Class Placement</h6>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.class_id.label(class="form-label") }}
+          {{ form.class_id(class="form-select", id="class_id") }}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.section_id.label(class="form-label") }}
+          {{ form.section_id(class="form-select" + (" is-invalid" if form.section_id.errors else ""), id="section_id") }}
+          {% for e in form.section_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.roll_number.label(class="form-label") }}
+          {{ form.roll_number(class="form-control" + (" is-invalid" if form.roll_number.errors else "")) }}
+          {% for e in form.roll_number.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <hr>
+      <h6 class="text-muted mb-3">Other</h6>
+      <div class="mb-3">
+        {{ form.medical_info.label(class="form-label") }}
+        {{ form.medical_info(class="form-control", rows=2) }}
+      </div>
+      <div class="mb-3">
+        {{ form.notes.label(class="form-label") }}
+        {{ form.notes(class="form-control", rows=2) }}
+      </div>
+
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('students.list_students') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Filters the Section dropdown to only the selected Class's sections,
+  // without a round trip to the server — the full map is small (one school's
+  // worth of classes/sections), so it's embedded here rather than fetched.
+  const sectionsByClass = {{ sections_by_class | tojson }};
+  const classSelect = document.getElementById("class_id");
+  const sectionSelect = document.getElementById("section_id");
+
+  function refreshSections(preserveSelected) {
+    const classId = classSelect.value;
+    const sections = sectionsByClass[classId] || [];
+    const currentValue = preserveSelected ? sectionSelect.value : null;
+    sectionSelect.innerHTML = "";
+    sections.forEach(([id, name]) => {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = name;
+      if (String(id) === String(currentValue)) opt.selected = true;
+      sectionSelect.appendChild(opt);
+    });
+  }
+
+  classSelect.addEventListener("change", () => refreshSections(false));
+  // On initial load (edit page), keep whichever section the student is already in.
+  refreshSections(true);
+</script>
+{% endblock %}

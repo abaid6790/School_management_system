@@ -1,0 +1,37 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">Enter Marks — {{ exam_subject.subject.name }}</h4>
+<p class="text-muted">{{ exam.name }} &middot; Maximum {{ exam_subject.max_marks }}, Passing {{ exam_subject.passing_marks }}</p>
+
+{% if students %}
+<form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light"><tr><th>Roll No.</th><th>Name</th><th style="width:160px;">Marks (out of {{ exam_subject.max_marks }})</th></tr></thead>
+        <tbody>
+          {% for student in students %}
+          {% set existing = existing_marks.get(student.id) %}
+          <tr>
+            <td>{{ student.current_roll_number or "—" }}</td>
+            <td>{{ student.name }}</td>
+            <td>
+              <input type="text" name="marks_{{ student.id }}" class="form-control form-control-sm"
+                     value="{{ existing.obtained_marks if existing is not none else '' }}"
+                     placeholder="e.g. 85">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary mt-3">Save Marks</button>
+  <a href="{{ url_for('exams.view_exam', exam_id=exam.id) }}" class="btn btn-outline-secondary mt-3">Back to Exam</a>
+  <div class="form-text mt-2">Leave a box blank to skip that student (e.g. absent) — it won't overwrite a previously saved mark.</div>
+</form>
+{% else %}
+<p class="text-muted">No active students found in this class.</p>
+{% endif %}
+{% endblock %}

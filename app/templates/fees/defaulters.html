@@ -1,0 +1,75 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Fee Defaulters</h4>
+
+<form method="GET" class="row g-2 mb-4 align-items-end">
+  <div class="col-md-3">
+    <label class="form-label">Class</label>
+    <select name="class_id" id="class_id" class="form-select" onchange="this.form.submit()">
+      <option value="">All classes</option>
+      {% for c in classes %}
+        <option value="{{ c.id }}" {{ "selected" if c.id == class_id else "" }}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Section</label>
+    <select name="section_id" id="section_id" class="form-select" onchange="this.form.submit()">
+      <option value="">All sections</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Min. Days Overdue</label>
+    <input type="number" name="min_days_overdue" value="{{ min_days_overdue or '' }}" class="form-control" placeholder="e.g. 30">
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Student</th><th>Class</th><th>Net Due</th><th>Paid</th><th>Remaining</th><th>Days Overdue</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td>{{ r.student.name }} ({{ r.student.admission_number }})</td>
+          <td>{{ r.student.current_class.name if r.student.current_class else "—" }} - {{ r.student.current_section.name if r.student.current_section else "—" }}</td>
+          <td>{{ r.total_net }}</td>
+          <td>{{ r.total_paid }}</td>
+          <td><strong>{{ r.total_remaining }}</strong></td>
+          <td>{% if r.days_overdue > 0 %}<span class="badge bg-danger">{{ r.days_overdue }}</span>{% else %}—{% endif %}</td>
+          <td class="text-end"><a href="{{ url_for('students.student_fees', student_id=r.student.id) }}" class="btn btn-outline-primary btn-sm">View Fees</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No outstanding balances found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const sectionsByClass = {{ sections_by_class | tojson }};
+  const classSelect = document.getElementById("class_id");
+  const sectionSelect = document.getElementById("section_id");
+  const currentSectionId = "{{ section_id or '' }}";
+
+  function refreshSections() {
+    const sections = sectionsByClass[classSelect.value] || [];
+    sectionSelect.innerHTML = '<option value="">All sections</option>';
+    sections.forEach(([id, name]) => {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = name;
+      if (String(id) === currentSectionId) opt.selected = true;
+      sectionSelect.appendChild(opt);
+    });
+  }
+  refreshSections();
+  classSelect.addEventListener("change", refreshSections);
+</script>
+{% endblock %}

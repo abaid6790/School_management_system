@@ -1,0 +1,39 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Fees</h4>
+<div class="row g-3">
+  {% if current_user.role.value in ("admin", "accountant") %}
+  <div class="col-md-4">
+    <a href="{{ url_for('fees.fee_type_list') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-tags"></i> Fee Types</h5>
+          <p class="card-text text-muted mb-0">Manage the categories of fees your school charges.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('fees.assign_bulk') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-people"></i> Assign Fee to Class</h5>
+          <p class="card-text text-muted mb-0">Charge a fee to every student in a class or section at once.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endif %}
+  <div class="col-md-4">
+    <a href="{{ url_for('fees.defaulters') }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> Fee Defaulters</h5>
+          <p class="card-text text-muted mb-0">Students with an outstanding balance.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+<p class="text-muted mt-4">To assign or view a single student's fees, open their profile.</p>
+{% endblock %}

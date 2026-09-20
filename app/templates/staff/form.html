@@ -1,0 +1,94 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">{{ title }}</h4>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+
+      <h6 class="text-muted mb-3">Basic Information</h6>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.name.label(class="form-label") }}
+          {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+          {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.employee_id.label(class="form-label") }}
+          {{ form.employee_id(class="form-control" + (" is-invalid" if form.employee_id.errors else "")) }}
+          {% for e in form.employee_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.phone.label(class="form-label") }}
+          {{ form.phone(class="form-control") }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.position.label(class="form-label") }}
+          {{ form.position(class="form-control" + (" is-invalid" if form.position.errors else "")) }}
+          {% for e in form.position.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.department.label(class="form-label") }}
+          {{ form.department(class="form-control") }}
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.address.label(class="form-label") }}
+        {{ form.address(class="form-control", rows=2) }}
+      </div>
+
+      <hr>
+      <h6 class="text-muted mb-3">Employment</h6>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.joining_date.label(class="form-label") }}
+          {{ form.joining_date(class="form-control" + (" is-invalid" if form.joining_date.errors else ""), type="date") }}
+          {% for e in form.joining_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.salary.label(class="form-label") }}
+          {{ form.salary(class="form-control") }}
+        </div>
+      </div>
+
+      {% if not staff_member %}
+      <hr>
+      <h6 class="text-muted mb-3">System Login (optional)</h6>
+      <div class="form-check mb-3">
+        {{ form.needs_login(class="form-check-input", id="needs_login") }}
+        {{ form.needs_login.label(class="form-check-label", for="needs_login") }}
+      </div>
+      <div id="login-fields" class="row" style="display:none;">
+        <div class="col-md-6 mb-3">
+          {{ form.system_role.label(class="form-label") }}
+          {{ form.system_role(class="form-select") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.email.label(class="form-label") }}
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+          {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="form-text mb-3">Only Accountant/Receptionist positions can have a system login. A setup email is sent — no password is entered here.</div>
+      {% endif %}
+
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('staff.list_staff') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  const needsLoginCheckbox = document.getElementById("needs_login");
+  const loginFields = document.getElementById("login-fields");
+  if (needsLoginCheckbox) {
+    function toggleLoginFields() {
+      loginFields.style.display = needsLoginCheckbox.checked ? "flex" : "none";
+    }
+    needsLoginCheckbox.addEventListener("change", toggleLoginFields);
+    toggleLoginFields();
+  }
+</script>
+{% endblock %}

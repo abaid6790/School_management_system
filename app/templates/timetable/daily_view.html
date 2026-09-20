@@ -1,0 +1,48 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Daily Timetable</h4>
+
+<form method="GET" class="row g-2 mb-4 align-items-end">
+  <div class="col-md-3">
+    <label class="form-label">Day</label>
+    <select name="day" class="form-select" onchange="this.form.submit()">
+      {% for d in days %}
+        <option value="{{ d.value }}" {{ "selected" if d.value == day.value else "" }}>{{ d.value.title() }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Class</label>
+    <select name="class_id" class="form-select" onchange="this.form.submit()">
+      <option value="">All classes</option>
+      {% for c in classes %}
+        <option value="{{ c.id }}" {{ "selected" if c.id == class_id else "" }}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Period</th><th>Class</th><th>Section</th><th>Subject</th><th>Teacher</th><th>Room</th></tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+        <tr>
+          <td>{{ e.period.name }} <span class="text-muted small">({{ e.period.start_time.strftime("%I:%M %p") }})</span></td>
+          <td>{{ e.school_class.name }}</td>
+          <td>{{ e.section.name }}</td>
+          <td>{{ e.subject.name if e.subject else "—" }}</td>
+          <td>{{ e.teacher.name if e.teacher else "—" }}</td>
+          <td>{{ e.room or "—" }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">Nothing scheduled for this day.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

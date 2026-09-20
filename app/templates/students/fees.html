@@ -1,0 +1,80 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Fees — {{ student.name }}</h4>
+  <div>
+    <a href="{{ url_for('students.fee_statement', student_id=student.id) }}" class="btn btn-outline-secondary btn-sm">Fee Statement</a>
+    {% if current_user.role.value in ("admin", "accountant", "receptionist") %}
+    <a href="{{ url_for('students.add_student_fee', student_id=student.id) }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Assign Fee</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Fee Type</th><th>Due Date</th><th>Amount</th><th>Discount</th><th>Paid</th><th>Remaining</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for row in fee_rows %}
+        {% set fee = row.fee %}{% set t = row.totals %}
+        <tr>
+          <td>{{ fee.fee_type.name }}</td>
+          <td>{{ fee.due_date }}</td>
+          <td>{{ t.amount }}</td>
+          <td>{{ t.discount_total }}</td>
+          <td>{{ t.paid_total }}</td>
+          <td>{{ t.remaining }}</td>
+          <td>
+            <span class="badge {{ 'bg-success' if t.status.value == 'paid' else ('bg-warning text-dark' if t.status.value == 'partially_paid' else ('bg-danger' if t.status.value == 'overdue' else 'bg-secondary')) }}">
+              {{ t.status.value.replace('_', ' ').title() }}
+            </span>
+          </td>
+          <td class="text-end">
+            {% if t.remaining > 0 and current_user.role.value in ("admin", "accountant", "receptionist") %}
+            <a href="{{ url_for('students.pay_student_fee', student_id=student.id, fee_id=fee.id) }}" class="btn btn-outline-primary btn-sm">Record Payment</a>
+            {% endif %}
+            {% if current_user.role.value in ("admin", "accountant") %}
+            <a href="{{ url_for('students.add_fee_discount', student_id=student.id, fee_id=fee.id) }}" class="btn btn-outline-secondary btn-sm">Add Discount</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% if fee.payments %}
+        <tr>
+          <td colspan="8" class="ps-4 py-1 border-top-0">
+            <small class="text-muted">Payments:
+              {% for p in fee.payments|sort(attribute="payment_date") %}
+                <a href="{{ url_for('students.fee_receipt', student_id=student.id, fee_id=fee.id, payment_id=p.id) }}">{{ p.receipt_number }}</a> ({{ p.amount }}){{ ", " if not loop.last else "" }}
+              {% endfor %}
+            </small>
+          </td>
+        </tr>
+        {% endif %}
+        {% if fee.discounts %}
+        <tr>
+          <td colspan="8" class="ps-4 py-1 border-top-0">
+            <small class="text-muted">
+              Discounts:
+              {% for d in fee.discounts %}
+                {{ d.discount_type.value.replace('_', ' ').title() }} -{{ d.computed_amount }} ({{ d.reason }})
+                {% if current_user.role.value in ("admin", "accountant") %}
+                <form method="POST" action="{{ url_for('students.delete_fee_discount', student_id=student.id, fee_id=fee.id, discount_id=d.id) }}" class="d-inline"
+                      onsubmit="return confirm('Remove this discount?');">
+                  <button type="submit" class="btn btn-link btn-sm text-danger p-0">Remove</button>
+                </form>
+                {% endif %}
+                {{ "; " if not loop.last else "" }}
+              {% endfor %}
+            </small>
+          </td>
+        </tr>
+        {% endif %}
+        {% else %}
+        <tr><td colspan="8" class="text-center text-muted py-4">No fees assigned yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

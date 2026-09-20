@@ -1,0 +1,63 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">{{ title }}</h4>
+<p class="text-muted">
+  {{ section.school_class.name }} - {{ section.name }} &middot; {{ day.value.title() }} &middot; {{ period.name }}
+  ({{ period.start_time.strftime("%I:%M %p") }}–{{ period.end_time.strftime("%I:%M %p") }})
+</p>
+
+<div class="card shadow-sm" style="max-width: 480px;">
+  <div class="card-body">
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% if not entry %}
+      <input type="hidden" name="class_id" value="{{ section.class_id }}">
+      <input type="hidden" name="section_id" value="{{ section.id }}">
+      <input type="hidden" name="period_id" value="{{ period.id }}">
+      <input type="hidden" name="day" value="{{ day.value }}">
+      {% endif %}
+
+      <div class="mb-3">
+        <label class="form-label">Subject</label>
+        <select name="subject_id" id="subject_id" class="form-select">
+          <option value="">— None (free period) —</option>
+          {% for s in subjects %}
+            <option value="{{ s.id }}" data-teacher="{{ s.teacher_id or '' }}"
+                    {{ "selected" if entry and entry.subject_id == s.id else "" }}>
+              {{ s.name }}{% if s.teacher %} ({{ s.teacher.name }}){% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Teacher</label>
+        <select name="teacher_id" id="teacher_id" class="form-select">
+          <option value="">— None —</option>
+          {% for t in teachers %}
+            <option value="{{ t.id }}" {{ "selected" if entry and entry.teacher_id == t.id else "" }}>{{ t.name }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Defaults to the subject's assigned teacher — change if someone else is covering.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Room</label>
+        <input type="text" name="room" class="form-control" value="{{ entry.room if entry else '' }}" placeholder="e.g. Room 101">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('timetable.index', class_id=section.class_id, section_id=section.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Auto-select the subject's assigned teacher, but only when no teacher is chosen yet.
+  document.getElementById("subject_id").addEventListener("change", function () {
+    const teacherId = this.selectedOptions[0].dataset.teacher;
+    const teacherSelect = document.getElementById("teacher_id");
+    if (teacherId && !teacherSelect.value) {
+      teacherSelect.value = teacherId;
+    }
+  });
+</script>
+{% endblock %}

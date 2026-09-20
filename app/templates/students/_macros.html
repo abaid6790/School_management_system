@@ -1,0 +1,24 @@
+{% macro guardian_relationship_fields(id_prefix, relations) %}
+<div class="row align-items-end">
+  <div class="col-md-4 mb-3">
+    <label class="form-label">Relationship to Student</label>
+    <select name="relationship_to_student" class="form-select" required>
+      {% for r in relations %}
+        <option value="{{ r.value }}">{{ r.value.title() }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="form-check">
+      <input type="checkbox" name="is_primary_contact" class="form-check-input" id="primary-{{ id_prefix }}" checked>
+      <label class="form-check-label" for="primary-{{ id_prefix }}">Primary contact</label>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="form-check">
+      <input type="checkbox" name="is_emergency_contact" class="form-check-input" id="emergency-{{ id_prefix }}">
+      <label class="form-check-label" for="emergency-{{ id_prefix }}">Emergency contact</label>
+    </div>
+  </div>
+</div>
+{% endmacro %}

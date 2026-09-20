@@ -1,0 +1,93 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <h4 class="mb-0">Report Card — {{ student.name }}</h4>
+  <a href="{{ url_for('exams.report_card_pdf', exam_id=exam.id, student_id=student.id) }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-download"></i> Download PDF
+  </a>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <h5>{{ exam.school.name }}</h5>
+    <p class="text-muted mb-0">{{ [exam.school.address, exam.school.phone, exam.school.email] | select | join(' | ') }}</p>
+    <hr>
+    <h6>Report Card — {{ exam.name }}</h6>
+    <div class="row small">
+      <div class="col-md-6">
+        <strong>Student:</strong> {{ student.name }}<br>
+        <strong>Class:</strong> {{ student.current_class.name if student.current_class else "—" }} - {{ student.current_section.name if student.current_section else "—" }}<br>
+        <strong>Session:</strong> {{ exam.session.name }}
+      </div>
+      <div class="col-md-6">
+        <strong>Admission No.:</strong> {{ student.admission_number }}<br>
+        <strong>Roll No.:</strong> {{ student.current_roll_number or "—" }}<br>
+        <strong>Exam Dates:</strong> {{ exam.start_date }} to {{ exam.end_date }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="table-responsive">
+    <table class="table table-sm mb-0">
+      <thead class="table-light"><tr><th>Subject</th><th>Max</th><th>Passing</th><th>Obtained</th><th>Result</th></tr></thead>
+      <tbody>
+        {% for s in result.subjects %}
+        <tr>
+          <td>{{ s.subject.name }}</td>
+          <td>{{ s.max_marks }}</td>
+          <td>{{ s.passing_marks }}</td>
+          <td>{{ s.obtained_marks if s.obtained_marks is not none else "—" }}</td>
+          <td>
+            {% if s.passed is none %}<span class="text-muted">Not Marked</span>
+            {% elif s.passed %}<span class="badge bg-success">Pass</span>
+            {% else %}<span class="badge bg-danger">Fail</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <table class="table table-sm mb-0">
+          <tr><th class="text-muted" style="width:50%">Total</th><td>{{ result.total_obtained }} / {{ result.total_max }}</td></tr>
+          <tr><th class="text-muted">Percentage</th><td>{{ result.percentage if result.percentage is not none else "—" }}{{ "%" if result.percentage is not none else "" }}</td></tr>
+          <tr><th class="text-muted">Grade</th><td>{{ result.grade or "—" }}</td></tr>
+          <tr><th class="text-muted">Overall Result</th>
+              <td>{% if result.overall_pass is none %}—{% elif result.overall_pass %}<span class="badge bg-success">Pass</span>{% else %}<span class="badge bg-danger">Fail</span>{% endif %}</td></tr>
+          <tr><th class="text-muted">Class Position</th><td>{% if rank_entry %}{{ rank_entry.rank }} of {{ total_in_class }}{% else %}—{% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="text-muted">Remarks</h6>
+        {% if current_user.role.value in ("admin", "teacher") %}
+        <form method="POST" action="{{ url_for('exams.save_remarks', exam_id=exam.id, student_id=student.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-2">
+            <label class="form-label small">Teacher's Remarks</label>
+            <textarea name="teacher_remarks" class="form-control form-control-sm" rows="2">{{ remark.teacher_remarks if remark else "" }}</textarea>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Principal's Remarks</label>
+            <textarea name="principal_remarks" class="form-control form-control-sm" rows="2">{{ remark.principal_remarks if remark else "" }}</textarea>
+          </div>
+          <button type="submit" class="btn btn-outline-primary btn-sm">Save Remarks</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="text-muted small">The downloaded PDF includes these same remarks — save them before downloading if you've just changed them.</p>
+{% endblock %}

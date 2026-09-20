@@ -1,0 +1,40 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">Results — {{ exam.name }}</h4>
+<p class="text-muted">{{ exam.school_class.name }}. Ranking is provisional until every subject is fully marked for every student.</p>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Rank</th><th>Student</th><th>Total</th><th>Percentage</th><th>Grade</th><th>Result</th><th></th></tr></thead>
+      <tbody>
+        {% for r in ranking %}
+        <tr>
+          <td><strong>{{ r.rank }}</strong></td>
+          <td>{{ r.student.name }}</td>
+          <td>{{ r.total_obtained }} / {{ r.total_max }}</td>
+          <td>{{ r.percentage }}%</td>
+          <td>{{ r.grade or "—" }}</td>
+          <td>
+            {% if r.overall_pass is none %}
+              <span class="text-muted">—</span>
+            {% elif r.overall_pass %}
+              <span class="badge bg-success">Pass</span>
+            {% else %}
+              <span class="badge bg-danger">Fail</span>
+            {% endif %}
+            {% if not r.complete %}<span class="badge bg-secondary">Incomplete</span>{% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('exams.student_result', exam_id=exam.id, student_id=r.student.id) }}" class="btn btn-outline-secondary btn-sm">Details</a>
+            <a href="{{ url_for('exams.report_card', exam_id=exam.id, student_id=r.student.id) }}" class="btn btn-outline-primary btn-sm">Report Card</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No marks recorded for this exam yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">Add Discount — {{ student.name }}</h4>
+<p class="text-muted">{{ fee.fee_type.name }} &middot; Fee Amount: {{ fee.amount }} &middot; Already Discounted: {{ totals.discount_total }}</p>
+
+<div class="card shadow-sm" style="max-width: 480px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.discount_type.label(class="form-label") }}
+        {{ form.discount_type(class="form-select") }}
+        <div class="form-text">For "Percentage", enter the percentage (e.g. 10 for 10%). All other types are a flat amount.</div>
+      </div>
+      <div class="mb-3">
+        {{ form.value.label(class="form-label") }}
+        {{ form.value(class="form-control" + (" is-invalid" if form.value.errors else "")) }}
+        {% for e in form.value.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.reason.label(class="form-label") }}
+        {{ form.reason(class="form-control" + (" is-invalid" if form.reason.errors else ""), rows=2) }}
+        {% for e in form.reason.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('students.student_fees', student_id=student.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

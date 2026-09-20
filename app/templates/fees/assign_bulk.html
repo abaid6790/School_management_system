@@ -1,0 +1,63 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Assign Fee to a Class</h4>
+<div class="card shadow-sm" style="max-width: 560px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.fee_type_id.label(class="form-label") }}
+        {{ form.fee_type_id(class="form-select", id="fee_type_id") }}
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.class_id.label(class="form-label") }}
+          {{ form.class_id(class="form-select", id="class_id") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Section</label>
+          <select name="section_id" id="section_id" class="form-select"></select>
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.amount.label(class="form-label") }}
+        {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), id="amount") }}
+        {% for e in form.amount.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.due_date.label(class="form-label") }}
+        {{ form.due_date(class="form-control" + (" is-invalid" if form.due_date.errors else ""), type="date") }}
+        {% for e in form.due_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.notes.label(class="form-label") }}
+        {{ form.notes(class="form-control", rows=2) }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('fees.index') }}" class="btn btn-outline-secondary">Cancel</a>
+      <div class="form-text mt-2">Students who already have this exact fee for this due date are skipped, not double-charged.</div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const sectionsByClass = {{ sections_by_class | tojson }};
+  const classSelect = document.getElementById("class_id");
+  const sectionSelect = document.getElementById("section_id");
+
+  function refreshSections() {
+    const sections = sectionsByClass[classSelect.value] || [];
+    const current = sectionSelect.value;
+    sectionSelect.innerHTML = "";
+    sections.forEach(([id, name]) => {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = name;
+      if (String(id) === current) opt.selected = true;
+      sectionSelect.appendChild(opt);
+    });
+  }
+  refreshSections();
+  classSelect.addEventListener("change", refreshSections);
+</script>
+{% endblock %}

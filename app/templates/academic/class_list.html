@@ -1,0 +1,40 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Classes</h4>
+  <a href="{{ url_for('academic.class_new') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Class</a>
+</div>
+
+<form method="GET" class="mb-3 d-flex gap-2">
+  <select name="session_id" class="form-select form-select-sm" style="max-width: 260px;" onchange="this.form.submit()">
+    <option value="">All sessions</option>
+    {% for s in sessions %}
+      <option value="{{ s.id }}" {{ "selected" if s.id == selected_session_id else "" }}>{{ s.name }}{{ " (active)" if s.is_active else "" }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Name</th><th>Session</th><th>Class Teacher</th><th>Capacity</th><th>Sections</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for c in classes %}
+        <tr>
+          <td>{{ c.name }}</td>
+          <td>{{ c.session.name }}</td>
+          <td>{{ c.class_teacher.name if c.class_teacher else "—" }}</td>
+          <td>{{ c.capacity or "—" }}</td>
+          <td><a href="{{ url_for('academic.section_list', class_id=c.id) }}">{{ c.sections|length }} section(s)</a></td>
+          <td class="text-end"><a href="{{ url_for('academic.class_edit', class_id=c.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No classes yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

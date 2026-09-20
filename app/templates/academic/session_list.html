@@ -1,0 +1,43 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Academic Sessions</h4>
+  <a href="{{ url_for('academic.session_new') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg"></i> New Session
+  </a>
+</div>
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Name</th><th>Start</th><th>End</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for s in sessions %}
+        <tr>
+          <td>{{ s.name }}</td>
+          <td>{{ s.start_date }}</td>
+          <td>{{ s.end_date }}</td>
+          <td>
+            {% if s.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if not s.is_active %}
+            <form method="POST" action="{{ url_for('academic.session_activate', session_id=s.id) }}" class="d-inline">
+              <button type="submit" class="btn btn-outline-success btn-sm">Make Active</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No academic sessions yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

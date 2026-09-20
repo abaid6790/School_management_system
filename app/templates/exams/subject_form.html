@@ -1,0 +1,52 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">{{ title }}</h4>
+<p class="text-muted">Exam: {{ exam.name }}</p>
+
+<div class="card shadow-sm" style="max-width: 520px;">
+  <div class="card-body">
+    {% if has_marks %}
+    <div class="alert alert-info">Marks have already been recorded for this subject — maximum marks can't be lowered below the highest recorded mark.</div>
+    {% endif %}
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.subject_id.label(class="form-label") }}
+        {{ form.subject_id(class="form-select") }}
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.max_marks.label(class="form-label") }}
+          {{ form.max_marks(class="form-control" + (" is-invalid" if form.max_marks.errors else "")) }}
+          {% for e in form.max_marks.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.passing_marks.label(class="form-label") }}
+          {{ form.passing_marks(class="form-control" + (" is-invalid" if form.passing_marks.errors else "")) }}
+          {% for e in form.passing_marks.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.exam_date.label(class="form-label") }}
+        {{ form.exam_date(class="form-control", type="date") }}
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.start_time.label(class="form-label") }}
+          {{ form.start_time(class="form-control", type="time") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.end_time.label(class="form-label") }}
+          {{ form.end_time(class="form-control", type="time") }}
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.room.label(class="form-label") }}
+        {{ form.room(class="form-control") }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('exams.view_exam', exam_id=exam.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

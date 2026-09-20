@@ -1,0 +1,49 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Parents / Guardians</h4>
+  <a href="{{ url_for('guardians.new_guardian') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Guardian</a>
+</div>
+
+<form method="GET" class="mb-3">
+  <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" style="max-width: 320px;"
+         placeholder="Search name or phone...">
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Father</th><th>Mother</th><th>Phone</th><th>Linked Students</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for g in guardians %}
+        <tr>
+          <td>{{ g.father_name or "—" }}</td>
+          <td>{{ g.mother_name or "—" }}</td>
+          <td>{{ g.phone }}</td>
+          <td>{{ g.student_links|length }}</td>
+          <td class="text-end"><a href="{{ url_for('guardians.view_guardian', guardian_id=g.id) }}" class="btn btn-outline-primary btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No guardians found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination">
+    <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}">
+      <a class="page-link" href="{{ url_for('guardians.list_guardians', page=pagination.prev_num, q=q) if pagination.has_prev else '#' }}">Previous</a>
+    </li>
+    <li class="page-item disabled"><span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span></li>
+    <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}">
+      <a class="page-link" href="{{ url_for('guardians.list_guardians', page=pagination.next_num, q=q) if pagination.has_next else '#' }}">Next</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

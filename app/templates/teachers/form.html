@@ -1,0 +1,85 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">{{ title }}</h4>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+
+      <h6 class="text-muted mb-3">Account</h6>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.name.label(class="form-label") }}
+          {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+          {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.email.label(class="form-label") }}
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+          {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.phone.label(class="form-label") }}
+          {{ form.phone(class="form-control") }}
+        </div>
+      </div>
+      {% if not teacher %}
+      <div class="form-text mb-3">An email will be sent for the teacher to set their own password — no password is entered here.</div>
+      {% endif %}
+
+      <hr>
+      <h6 class="text-muted mb-3">Employment</h6>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.employee_id.label(class="form-label") }}
+          {{ form.employee_id(class="form-control" + (" is-invalid" if form.employee_id.errors else "")) }}
+          {% for e in form.employee_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.joining_date.label(class="form-label") }}
+          {{ form.joining_date(class="form-control" + (" is-invalid" if form.joining_date.errors else ""), type="date") }}
+          {% for e in form.joining_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.salary.label(class="form-label") }}
+          {{ form.salary(class="form-control") }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.qualification.label(class="form-label") }}
+          {{ form.qualification(class="form-control") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.specialization.label(class="form-label") }}
+          {{ form.specialization(class="form-control") }}
+        </div>
+      </div>
+
+      <hr>
+      <h6 class="text-muted mb-3">Personal</h6>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.father_or_spouse_name.label(class="form-label") }}
+          {{ form.father_or_spouse_name(class="form-control") }}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.date_of_birth.label(class="form-label") }}
+          {{ form.date_of_birth(class="form-control", type="date") }}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.gender.label(class="form-label") }}
+          {{ form.gender(class="form-select") }}
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.address.label(class="form-label") }}
+        {{ form.address(class="form-control", rows=2) }}
+      </div>
+
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('teachers.list_teachers') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

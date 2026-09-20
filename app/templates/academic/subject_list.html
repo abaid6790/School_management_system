@@ -1,0 +1,41 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Subjects</h4>
+  <a href="{{ url_for('academic.subject_new') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Subject</a>
+</div>
+
+<form method="GET" class="mb-3 d-flex gap-2">
+  <select name="class_id" class="form-select form-select-sm" style="max-width: 260px;" onchange="this.form.submit()">
+    <option value="">All classes</option>
+    {% for c in classes %}
+      <option value="{{ c.id }}" {{ "selected" if c.id == selected_class_id else "" }}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Name</th><th>Code</th><th>Class</th><th>Teacher</th><th>Max/Pass Marks</th><th>Type</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for s in subjects %}
+        <tr>
+          <td>{{ s.name }}</td>
+          <td>{{ s.code }}</td>
+          <td>{{ s.school_class.name }}</td>
+          <td>{{ s.teacher.name if s.teacher else "—" }}</td>
+          <td>{{ s.max_marks }} / {{ s.passing_marks }}</td>
+          <td><span class="badge bg-light text-dark border">{{ s.subject_type.value.title() }}</span></td>
+          <td class="text-end"><a href="{{ url_for('academic.subject_edit', subject_id=s.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No subjects yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

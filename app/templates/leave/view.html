@@ -1,0 +1,42 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Leave Request — {{ leave.applicant_name }}</h4>
+
+<div class="card shadow-sm" style="max-width: 600px;">
+  <div class="card-body">
+    <table class="table table-sm mb-3">
+      <tr><th class="text-muted" style="width:40%">Applicant Type</th><td>{{ leave.applicant_role.value.title() }}</td></tr>
+      <tr><th class="text-muted">Leave Type</th><td>{{ leave.leave_type.value.title() }}</td></tr>
+      <tr><th class="text-muted">Dates</th><td>{{ leave.start_date }} &rarr; {{ leave.end_date }}</td></tr>
+      <tr><th class="text-muted">Reason</th><td>{{ leave.reason or "—" }}</td></tr>
+      <tr><th class="text-muted">Applied By</th><td>{{ leave.applied_by.name if leave.applied_by else "—" }}</td></tr>
+      <tr><th class="text-muted">Status</th>
+          <td>
+            <span class="badge {{ 'bg-warning text-dark' if leave.status.value == 'pending' else ('bg-success' if leave.status.value == 'approved' else 'bg-secondary') }}">
+              {{ leave.status.value.title() }}
+            </span>
+          </td></tr>
+      {% if leave.status.value != "pending" %}
+      <tr><th class="text-muted">Decided By</th><td>{{ leave.approved_by.name if leave.approved_by else "—" }}</td></tr>
+      <tr><th class="text-muted">Remarks</th><td>{{ leave.decision_remarks or "—" }}</td></tr>
+      {% endif %}
+    </table>
+
+    {% if leave.status.value == "pending" %}
+      {% if current_user.role.value == "admin" %}
+      <form method="POST" action="{{ url_for('leave.decide_leave', leave_id=leave.id) }}" class="mb-2">
+        <div class="mb-2">
+          <textarea name="decision_remarks" class="form-control" rows="2" placeholder="Optional remarks"></textarea>
+        </div>
+        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+      </form>
+      {% endif %}
+      <form method="POST" action="{{ url_for('leave.cancel_leave', leave_id=leave.id) }}"
+            onsubmit="return confirm('Cancel this leave request?');">
+        <button type="submit" class="btn btn-outline-secondary btn-sm">Cancel Request</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

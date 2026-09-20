@@ -1,0 +1,61 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">{{ title }}</h4>
+<div class="card shadow-sm" style="max-width: 600px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.father_name.label(class="form-label") }}
+          {{ form.father_name(class="form-control") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.mother_name.label(class="form-label") }}
+          {{ form.mother_name(class="form-control" + (" is-invalid" if form.mother_name.errors else "")) }}
+          {% for e in form.mother_name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.phone.label(class="form-label") }}
+          {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else "")) }}
+          {% for e in form.phone.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.alternate_phone.label(class="form-label") }}
+          {{ form.alternate_phone(class="form-control") }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.email.label(class="form-label") }}
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+          {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.occupation.label(class="form-label") }}
+          {{ form.occupation(class="form-control") }}
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.address.label(class="form-label") }}
+        {{ form.address(class="form-control") }}
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.emergency_contact_name.label(class="form-label") }}
+          {{ form.emergency_contact_name(class="form-control") }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.emergency_contact_phone.label(class="form-label") }}
+          {{ form.emergency_contact_phone(class="form-control") }}
+        </div>
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('guardians.list_guardians') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

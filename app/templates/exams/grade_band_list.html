@@ -1,0 +1,32 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Grade Bands</h4>
+  <a href="{{ url_for('exams.grade_band_new') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Grade Band</a>
+</div>
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Order</th><th>Grade</th><th>Range</th><th></th></tr></thead>
+      <tbody>
+        {% for b in bands %}
+        <tr>
+          <td>{{ b.order_index }}</td>
+          <td><strong>{{ b.grade }}</strong></td>
+          <td>{{ b.min_percentage }}% – {{ b.max_percentage }}%</td>
+          <td class="text-end">
+            <a href="{{ url_for('exams.grade_band_edit', band_id=b.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            <form method="POST" action="{{ url_for('exams.grade_band_delete', band_id=b.id) }}" class="d-inline"
+                  onsubmit="return confirm('Delete grade band {{ b.grade }}?');">
+              <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted py-4">No grade bands configured yet — results will show without a letter grade until you add some.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

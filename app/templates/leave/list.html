@@ -1,0 +1,44 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Leave Requests</h4>
+  <a href="{{ url_for('leave.new_leave') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Apply for Leave</a>
+</div>
+
+<form method="GET" class="mb-3">
+  <select name="status" class="form-select form-select-sm" style="max-width: 220px;" onchange="this.form.submit()">
+    <option value="">All statuses</option>
+    {% for s in statuses %}
+      <option value="{{ s.value }}" {{ "selected" if s.value == status else "" }}>{{ s.value.title() }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Applicant</th><th>Type</th><th>Leave Type</th><th>Dates</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for l in leave_requests %}
+        <tr>
+          <td>{{ l.applicant_name }}</td>
+          <td>{{ l.applicant_role.value.title() }}</td>
+          <td>{{ l.leave_type.value.title() }}</td>
+          <td>{{ l.start_date }} &rarr; {{ l.end_date }}</td>
+          <td>
+            <span class="badge {{ 'bg-warning text-dark' if l.status.value == 'pending' else ('bg-success' if l.status.value == 'approved' else 'bg-secondary') }}">
+              {{ l.status.value.title() }}
+            </span>
+          </td>
+          <td class="text-end"><a href="{{ url_for('leave.view_leave', leave_id=l.id) }}" class="btn btn-outline-primary btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No leave requests found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

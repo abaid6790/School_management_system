@@ -1,0 +1,99 @@
+{% extends "shell.html" %}
+{% from "students/_macros.html" import guardian_relationship_fields %}
+{% block content %}
+<h4 class="mb-1">Add Guardian — {{ student.name }}</h4>
+<p class="text-muted mb-4">Search for an existing guardian first (siblings often share one) before creating a new record.</p>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h6 class="card-title text-muted">1. Search Existing Guardians</h6>
+    <form method="GET" class="d-flex gap-2 mb-3">
+      <input type="text" name="q" value="{{ search_q }}" class="form-control" placeholder="Search by name or phone...">
+      <button type="submit" class="btn btn-outline-secondary">Search</button>
+    </form>
+
+    {% if search_q %}
+      {% if search_results %}
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="link_existing">
+        <table class="table table-sm align-middle">
+          <thead><tr><th></th><th>Father</th><th>Mother</th><th>Phone</th></tr></thead>
+          <tbody>
+            {% for g in search_results %}
+            <tr>
+              <td><input type="radio" name="guardian_id" value="{{ g.id }}" required></td>
+              <td>{{ g.father_name or "—" }}</td>
+              <td>{{ g.mother_name or "—" }}</td>
+              <td>{{ g.phone }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {{ guardian_relationship_fields("existing", relations) }}
+        <button type="submit" class="btn btn-primary">Link Selected Guardian</button>
+      </form>
+      {% else %}
+        <p class="text-muted mb-0">No matching guardians found — create a new one below.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h6 class="card-title text-muted">2. Or Create a New Guardian</h6>
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="create_new">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Father's Name</label>
+          <input type="text" name="father_name" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Mother's Name</label>
+          <input type="text" name="mother_name" class="form-control">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Phone</label>
+          <input type="text" name="phone" class="form-control" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Alternate Phone</label>
+          <input type="text" name="alternate_phone" class="form-control">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Occupation</label>
+          <input type="text" name="occupation" class="form-control">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Address</label>
+        <input type="text" name="address" class="form-control">
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Emergency Contact Name</label>
+          <input type="text" name="emergency_contact_name" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Emergency Contact Phone</label>
+          <input type="text" name="emergency_contact_phone" class="form-control">
+        </div>
+      </div>
+      {{ guardian_relationship_fields("new", relations) }}
+      <button type="submit" class="btn btn-primary">Create &amp; Link Guardian</button>
+      <a href="{{ url_for('students.view_student', student_id=student.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

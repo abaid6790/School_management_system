@@ -1,0 +1,48 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Exams</h4>
+  {% if current_user.role.value == "admin" %}
+  <div>
+    <a href="{{ url_for('exams.grade_band_list') }}" class="btn btn-outline-secondary btn-sm">Grade Bands</a>
+    <a href="{{ url_for('exams.new_exam') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Exam</a>
+  </div>
+  {% endif %}
+</div>
+
+<form method="GET" class="mb-3">
+  <select name="class_id" class="form-select form-select-sm" style="max-width: 260px;" onchange="this.form.submit()">
+    <option value="">All classes</option>
+    {% for c in classes %}
+      <option value="{{ c.id }}" {{ "selected" if c.id == class_id else "" }}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Name</th><th>Type</th><th>Class</th><th>Dates</th><th>Subjects</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for e in exams %}
+        <tr>
+          <td>{{ e.name }}</td>
+          <td>{{ e.exam_type.value.replace('_', ' ').title() }}</td>
+          <td>{{ e.school_class.name }}</td>
+          <td>{{ e.start_date }} &rarr; {{ e.end_date }}</td>
+          <td>{{ e.exam_subjects|length }}</td>
+          <td>
+            <span class="badge {{ 'bg-success' if e.status.value == 'completed' else ('bg-secondary' if e.status.value == 'cancelled' else 'bg-primary') }}">
+              {{ e.status.value.title() }}
+            </span>
+          </td>
+          <td class="text-end"><a href="{{ url_for('exams.view_exam', exam_id=e.id) }}" class="btn btn-outline-primary btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No exams yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

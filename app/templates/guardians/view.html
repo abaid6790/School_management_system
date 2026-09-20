@@ -1,0 +1,52 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <h4 class="mb-0">{{ guardian.father_name or guardian.mother_name }}</h4>
+  <a href="{{ url_for('guardians.edit_guardian', guardian_id=guardian.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="card-title text-muted">Contact Information</h6>
+        <table class="table table-sm mb-0">
+          <tr><th class="text-muted" style="width:40%">Father</th><td>{{ guardian.father_name or "—" }}</td></tr>
+          <tr><th class="text-muted">Mother</th><td>{{ guardian.mother_name or "—" }}</td></tr>
+          <tr><th class="text-muted">Phone</th><td>{{ guardian.phone }}</td></tr>
+          <tr><th class="text-muted">Alternate Phone</th><td>{{ guardian.alternate_phone or "—" }}</td></tr>
+          <tr><th class="text-muted">Email</th><td>{{ guardian.email or "—" }}</td></tr>
+          <tr><th class="text-muted">Occupation</th><td>{{ guardian.occupation or "—" }}</td></tr>
+          <tr><th class="text-muted">Address</th><td>{{ guardian.address or "—" }}</td></tr>
+          <tr><th class="text-muted">Emergency Contact</th>
+              <td>{{ guardian.emergency_contact_name or "—" }}{% if guardian.emergency_contact_phone %} ({{ guardian.emergency_contact_phone }}){% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="card-title text-muted">Linked Students</h6>
+        {% if guardian.student_links %}
+          <ul class="list-group list-group-flush">
+            {% for link in guardian.student_links %}
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <a href="{{ url_for('students.view_student', student_id=link.student.id) }}">{{ link.student.name }}</a>
+                  <span class="text-muted"> — {{ link.relationship_to_student.value.title() }}</span>
+                  {% if link.is_primary_contact %}<span class="badge bg-primary">Primary</span>{% endif %}
+                  {% if link.is_emergency_contact %}<span class="badge bg-warning text-dark">Emergency</span>{% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Not linked to any students yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

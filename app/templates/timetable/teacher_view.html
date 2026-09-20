@@ -1,0 +1,42 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Timetable — {{ teacher.name }}</h4>
+
+{% if periods %}
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-bordered mb-0 align-middle text-center">
+      <thead class="table-light">
+        <tr><th>Period</th>{% for d in days %}<th>{{ d.value.title() }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for p in periods %}
+        <tr>
+          <td class="text-start">
+            <strong>{{ p.name }}</strong><br>
+            <small class="text-muted">{{ p.start_time.strftime("%I:%M %p") }}–{{ p.end_time.strftime("%I:%M %p") }}</small>
+          </td>
+          {% for d in days %}
+          {% set e = grid[p.id][d.value] %}
+          <td>
+            {% if e %}
+              <div class="small">
+                <strong>{{ e.subject.name if e.subject else "—" }}</strong><br>
+                {{ e.school_class.name }} - {{ e.section.name }}<br>
+                {% if e.room %}<span class="text-muted">{{ e.room }}</span>{% endif %}
+              </div>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<p class="text-muted">No periods defined yet.</p>
+{% endif %}
+{% endblock %}

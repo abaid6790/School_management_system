@@ -1,0 +1,33 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">Record Payment — {{ student.name }}</h4>
+<p class="text-muted">{{ fee.fee_type.name }} &middot; Remaining balance: <strong>{{ totals.remaining }}</strong></p>
+
+<div class="card shadow-sm" style="max-width: 460px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.amount.label(class="form-label") }}
+        {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else "")) }}
+        {% for e in form.amount.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        <div class="form-text">Defaults to the full remaining balance — reduce it for a partial payment.</div>
+      </div>
+      <div class="mb-3">
+        {{ form.payment_method.label(class="form-label") }}
+        {{ form.payment_method(class="form-select") }}
+      </div>
+      <div class="mb-3">
+        {{ form.payment_date.label(class="form-label") }}
+        {{ form.payment_date(class="form-control", type="date") }}
+      </div>
+      <div class="mb-3">
+        {{ form.notes.label(class="form-label") }}
+        {{ form.notes(class="form-control", rows=2) }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('students.student_fees', student_id=student.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

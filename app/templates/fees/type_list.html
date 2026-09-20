@@ -1,0 +1,36 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Fee Types</h4>
+  {% if current_user.role.value == "admin" %}
+  <a href="{{ url_for('fees.fee_type_new') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Fee Type</a>
+  {% endif %}
+</div>
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Name</th><th>Default Amount</th><th>Recurring?</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for ft in fee_types %}
+        <tr>
+          <td>{{ ft.name }}</td>
+          <td>{{ ft.default_amount if ft.default_amount is not none else "—" }}</td>
+          <td>{{ "Yes" if ft.is_recurring else "No" }}</td>
+          <td><span class="badge {{ 'bg-success' if ft.status.value == 'active' else 'bg-secondary' }}">{{ ft.status.value.title() }}</span></td>
+          <td class="text-end">
+            {% if current_user.role.value == "admin" %}
+            <a href="{{ url_for('fees.fee_type_edit', fee_type_id=ft.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            <form method="POST" action="{{ url_for('fees.fee_type_toggle_status', fee_type_id=ft.id) }}" class="d-inline">
+              <button type="submit" class="btn btn-outline-secondary btn-sm">{{ "Deactivate" if ft.status.value == "active" else "Activate" }}</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No fee types yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

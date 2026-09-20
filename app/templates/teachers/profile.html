@@ -1,0 +1,103 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-0">{{ teacher.name }}</h4>
+    <span class="text-muted">Employee ID {{ profile.employee_id }}</span>
+    <span class="badge {{ 'bg-success' if profile.employment_status.value == 'active' else 'bg-secondary' }} ms-2">
+      {{ profile.employment_status.value.replace('_', ' ').title() }}
+    </span>
+  </div>
+  <div>
+    <a href="{{ url_for('teacher_attendance.history', user_id=teacher.id) }}" class="btn btn-outline-secondary btn-sm">Attendance History</a>
+    <a href="{{ url_for('timetable.teacher_timetable', user_id=teacher.id) }}" class="btn btn-outline-secondary btn-sm">Timetable</a>
+    {% if current_user.role.value == "admin" %}
+    <a href="{{ url_for('teachers.edit_teacher', user_id=teacher.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#statusModal">
+      Change Status
+    </button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="card-title text-muted">Personal &amp; Employment Information</h6>
+        <table class="table table-sm mb-0">
+          <tr><th class="text-muted" style="width:45%">Email</th><td>{{ teacher.email }}</td></tr>
+          <tr><th class="text-muted">Phone</th><td>{{ teacher.phone or "—" }}</td></tr>
+          <tr><th class="text-muted">Father's/Spouse's Name</th><td>{{ profile.father_or_spouse_name or "—" }}</td></tr>
+          <tr><th class="text-muted">Date of Birth</th><td>{{ profile.date_of_birth or "—" }}</td></tr>
+          <tr><th class="text-muted">Gender</th><td>{{ profile.gender.value.title() if profile.gender else "—" }}</td></tr>
+          <tr><th class="text-muted">Address</th><td>{{ profile.address or "—" }}</td></tr>
+          <tr><th class="text-muted">Qualification</th><td>{{ profile.qualification or "—" }}</td></tr>
+          <tr><th class="text-muted">Specialization</th><td>{{ profile.specialization or "—" }}</td></tr>
+          <tr><th class="text-muted">Joining Date</th><td>{{ profile.joining_date }}</td></tr>
+          {% if current_user.role.value == "admin" %}
+          <tr><th class="text-muted">Salary</th><td>{{ profile.salary if profile.salary is not none else "—" }}</td></tr>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="card-title text-muted">Subjects Taught</h6>
+        {% if subjects %}
+          <ul class="list-unstyled mb-0">
+            {% for s in subjects %}
+              <li>{{ s.name }} ({{ s.code }}) — {{ s.school_class.name }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No subjects assigned yet — assign from a subject's edit page.</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title text-muted">Homeroom Classes / Sections</h6>
+        {% if homeroom_classes or homeroom_sections %}
+          <ul class="list-unstyled mb-0">
+            {% for c in homeroom_classes %}<li>{{ c.name }} (Class Teacher)</li>{% endfor %}
+            {% for s in homeroom_sections %}<li>{{ s.school_class.name }} — Section {{ s.name }} (Section Teacher)</li>{% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Not assigned as a class or section teacher.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if current_user.role.value == "admin" %}
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('teachers.change_status', user_id=teacher.id) }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Change Employment Status — {{ teacher.name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          {{ status_form.hidden_tag() }}
+          <div class="mb-3">
+            {{ status_form.employment_status.label(class="form-label") }}
+            {{ status_form.employment_status(class="form-select") }}
+          </div>
+          <div class="form-text">Setting anything other than Active also blocks this teacher's login.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          {{ status_form.submit(class="btn btn-danger") }}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

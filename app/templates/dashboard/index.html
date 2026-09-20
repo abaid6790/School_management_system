@@ -1,0 +1,17 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h3>Welcome, {{ current_user.name }}</h3>
+    <p class="mb-1"><strong>Role:</strong> {{ current_user.role.value.replace('_', ' ')|title }}</p>
+    {% if current_user.school %}
+      <p class="mb-1"><strong>School:</strong> {{ current_user.school.name }}</p>
+    {% endif %}
+    <p class="text-muted mt-3 mb-0">
+      Real dashboard statistics (students, attendance, fees, etc.) are wired up as each
+      module is built in later phases. The sidebar already reflects the full system —
+      items marked "soon" light up as their phase lands.
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Daily Attendance Report</h4>
+
+<form method="GET" class="row g-2 mb-4 align-items-end">
+  <div class="col-md-3">
+    <label class="form-label">Date</label>
+    <input type="date" name="date" value="{{ selected_date.isoformat() }}" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Class</label>
+    <select name="class_id" class="form-select">
+      <option value="">All classes</option>
+      {% for c in classes %}
+        <option value="{{ c.id }}" {{ "selected" if c.id == class_id else "" }}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+  </div>
+</form>
+
+<div class="row g-3 mb-4">
+  {% for status, count in counts.items() %}
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center">
+      <div class="card-body">
+        <div class="fs-4 fw-semibold">{{ count }}</div>
+        <div class="text-muted">{{ status.title() }}</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Student</th><th>Class</th><th>Section</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td><a href="{{ url_for('students.view_student', student_id=r.student_id) }}">{{ r.student.name }}</a></td>
+          <td>{{ r.school_class.name }}</td>
+          <td>{{ r.section.name }}</td>
+          <td>
+            <span class="badge {{ 'bg-success' if r.status.value == 'present' else ('bg-warning text-dark' if r.status.value == 'late' else 'bg-secondary') }}">
+              {{ r.status.value.title() }}
+            </span>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted py-4">No attendance marked for this date yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

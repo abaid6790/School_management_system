@@ -1,0 +1,47 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">{{ title }}</h4>
+<div class="card shadow-sm" style="max-width: 560px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+        {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.code.label(class="form-label") }}
+        {{ form.code(class="form-control" + (" is-invalid" if form.code.errors else "")) }}
+        {% for e in form.code.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.class_id.label(class="form-label") }}
+        {{ form.class_id(class="form-select") }}
+      </div>
+      <div class="mb-3">
+        {{ form.teacher_id.label(class="form-label") }}
+        {{ form.teacher_id(class="form-select") }}
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.max_marks.label(class="form-label") }}
+          {{ form.max_marks(class="form-control" + (" is-invalid" if form.max_marks.errors else "")) }}
+          {% for e in form.max_marks.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.passing_marks.label(class="form-label") }}
+          {{ form.passing_marks(class="form-control" + (" is-invalid" if form.passing_marks.errors else "")) }}
+          {% for e in form.passing_marks.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.subject_type.label(class="form-label") }}
+        {{ form.subject_type(class="form-select") }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('academic.subject_list') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

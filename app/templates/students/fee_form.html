@@ -1,0 +1,47 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Assign Fee — {{ student.name }}</h4>
+<div class="card shadow-sm" style="max-width: 480px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.fee_type_id.label(class="form-label") }}
+        {{ form.fee_type_id(class="form-select", id="fee_type_id") }}
+      </div>
+      <div class="mb-3">
+        {{ form.amount.label(class="form-label") }}
+        {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), id="amount") }}
+        {% for e in form.amount.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.due_date.label(class="form-label") }}
+        {{ form.due_date(class="form-control" + (" is-invalid" if form.due_date.errors else ""), type="date") }}
+        {% for e in form.due_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.notes.label(class="form-label") }}
+        {{ form.notes(class="form-control", rows=2) }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('students.student_fees', student_id=student.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  const defaults = {{ fee_type_defaults | tojson }};
+  const feeTypeSelect = document.getElementById("fee_type_id");
+  const amountField = document.getElementById("amount");
+
+  feeTypeSelect.addEventListener("change", () => {
+    const def = defaults[feeTypeSelect.value];
+    if (def && !amountField.value) amountField.value = def;
+  });
+  // Prefill on load for the initially-selected fee type too.
+  if (!amountField.value) {
+    const initialDefault = defaults[feeTypeSelect.value];
+    if (initialDefault) amountField.value = initialDefault;
+  }
+</script>
+{% endblock %}

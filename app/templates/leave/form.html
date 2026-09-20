@@ -1,0 +1,85 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Apply for Leave</h4>
+<div class="card shadow-sm" style="max-width: 600px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+
+      {% if is_self_service %}
+        <p class="text-muted">This leave request will be filed for you ({{ current_user.name }}).</p>
+      {% else %}
+        <div class="mb-3">
+          <label class="form-label">Who is this leave for?</label>
+          <select id="applicant_role" name="applicant_role" class="form-select" required>
+            <option value="">Choose one</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="staff">Staff</option>
+          </select>
+        </div>
+        <div class="mb-3" id="student-picker" style="display:none;">
+          <label class="form-label">Student</label>
+          <select name="student_id" class="form-select">
+            <option value="">Choose a student</option>
+            {% for s in students %}<option value="{{ s.id }}">{{ s.name }} ({{ s.admission_number }})</option>{% endfor %}
+          </select>
+        </div>
+        <div class="mb-3" id="teacher-picker" style="display:none;">
+          <label class="form-label">Teacher</label>
+          <select name="teacher_user_id" class="form-select">
+            <option value="">Choose a teacher</option>
+            {% for t in teachers %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="mb-3" id="staff-picker" style="display:none;">
+          <label class="form-label">Staff Member</label>
+          <select name="staff_id" class="form-select">
+            <option value="">Choose a staff member</option>
+            {% for st in staff_members %}<option value="{{ st.id }}">{{ st.name }} ({{ st.position }})</option>{% endfor %}
+          </select>
+        </div>
+      {% endif %}
+
+      <div class="mb-3">
+        {{ form.leave_type.label(class="form-label") }}
+        {{ form.leave_type(class="form-select") }}
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.start_date.label(class="form-label") }}
+          {{ form.start_date(class="form-control" + (" is-invalid" if form.start_date.errors else ""), type="date") }}
+          {% for e in form.start_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.end_date.label(class="form-label") }}
+          {{ form.end_date(class="form-control" + (" is-invalid" if form.end_date.errors else ""), type="date") }}
+          {% for e in form.end_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="mb-3">
+        {{ form.reason.label(class="form-label") }}
+        {{ form.reason(class="form-control", rows=3) }}
+      </div>
+
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('leave.list_leave') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+{% if not is_self_service %}
+<script>
+  const roleSelect = document.getElementById("applicant_role");
+  const pickers = {
+    student: document.getElementById("student-picker"),
+    teacher: document.getElementById("teacher-picker"),
+    staff: document.getElementById("staff-picker"),
+  };
+  roleSelect.addEventListener("change", () => {
+    Object.values(pickers).forEach(p => p.style.display = "none");
+    if (pickers[roleSelect.value]) pickers[roleSelect.value].style.display = "block";
+  });
+</script>
+{% endif %}
+{% endblock %}
