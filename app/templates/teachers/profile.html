@@ -11,6 +11,9 @@
   <div>
     <a href="{{ url_for('teacher_attendance.history', user_id=teacher.id) }}" class="btn btn-outline-secondary btn-sm">Attendance History</a>
     <a href="{{ url_for('timetable.teacher_timetable', user_id=teacher.id) }}" class="btn btn-outline-secondary btn-sm">Timetable</a>
+    {% if current_user.id == teacher.id %}
+    <a href="{{ url_for('salaries.my_salaries') }}" class="btn btn-outline-secondary btn-sm">My Salary</a>
+    {% endif %}
     {% if current_user.role.value == "admin" %}
     <a href="{{ url_for('teachers.edit_teacher', user_id=teacher.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
     <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#statusModal">

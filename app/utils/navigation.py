@@ -60,9 +60,9 @@ NAV_SECTIONS = [
         "items": [
             {"label": "Fees", "endpoint": "fees.index", "icon": "cash-coin",
              "roles": [UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.RECEPTIONIST]},
-            {"label": "Expenses", "endpoint": None, "icon": "receipt",
+            {"label": "Expenses", "endpoint": "expenses.list_expenses", "icon": "receipt",
              "roles": [UserRole.ADMIN, UserRole.ACCOUNTANT]},
-            {"label": "Salaries", "endpoint": None, "icon": "wallet2",
+            {"label": "Salaries", "endpoint": "salaries.list_salaries", "icon": "wallet2",
              "roles": [UserRole.ADMIN, UserRole.ACCOUNTANT]},
         ],
     },
@@ -78,7 +78,7 @@ NAV_SECTIONS = [
     {
         "heading": "System",
         "items": [
-            {"label": "Reports", "endpoint": None, "icon": "bar-chart",
+            {"label": "Reports", "endpoint": "reports.financial_summary", "icon": "bar-chart",
              "roles": [UserRole.ADMIN, UserRole.ACCOUNTANT]},
             {"label": "Audit Log", "endpoint": "audit.list_logs", "icon": "shield-check",
              "roles": [UserRole.ADMIN, UserRole.SUPER_ADMIN]},

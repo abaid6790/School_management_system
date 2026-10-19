@@ -1,0 +1,34 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Salaries</h4>
+  <a href="{{ url_for('salaries.new_salary') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Generate Salary</a>
+</div>
+<form method="GET" class="mb-3">
+  <select name="status" class="form-select form-select-sm" style="max-width: 220px;" onchange="this.form.submit()">
+    <option value="">All statuses</option>
+    {% for s in statuses %}<option value="{{ s.value }}" {{ "selected" if s.value == status else "" }}>{{ s.value.title() }}</option>{% endfor %}
+  </select>
+</form>
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Recipient</th><th>Type</th><th>Month</th><th>Net Salary</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.recipient_name }}</td>
+          <td>{{ r.recipient_role.value.title() }}</td>
+          <td>{{ r.month.strftime("%B %Y") }}</td>
+          <td>{{ compute_net_salary(r) }}</td>
+          <td><span class="badge {{ 'bg-success' if r.payment_status.value == 'paid' else 'bg-warning text-dark' }}">{{ r.payment_status.value.title() }}</span></td>
+          <td class="text-end"><a href="{{ url_for('salaries.view_salary', salary_id=r.id) }}" class="btn btn-outline-primary btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No salary records yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

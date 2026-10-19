@@ -1,0 +1,38 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-0">Salary — {{ record.recipient_name }}</h4>
+    <span class="text-muted">{{ record.month.strftime("%B %Y") }}</span>
+    <span class="badge {{ 'bg-success' if record.payment_status.value == 'paid' else 'bg-warning text-dark' }} ms-2">{{ record.payment_status.value.title() }}</span>
+  </div>
+  <div>
+    <a href="{{ url_for('salaries.salary_slip_pdf', salary_id=record.id) }}" class="btn btn-primary btn-sm"><i class="bi bi-download"></i> Download Slip</a>
+    {% if current_user.role.value in ("admin", "accountant") and record.payment_status.value != "paid" %}
+    <a href="{{ url_for('salaries.edit_salary', salary_id=record.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <form method="POST" action="{{ url_for('salaries.mark_paid', salary_id=record.id) }}" class="d-inline">
+      <button type="submit" class="btn btn-success btn-sm">Mark Paid</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+<div class="card shadow-sm" style="max-width: 460px;">
+  <div class="card-body">
+    <table class="table table-sm mb-0">
+      <tr><th class="text-muted" style="width:50%">Basic Salary</th><td>{{ record.basic_salary }}</td></tr>
+      <tr><th class="text-muted">Allowances</th><td>{{ record.allowances }}</td></tr>
+      <tr><th class="text-muted">Bonus</th><td>{{ record.bonus }}</td></tr>
+      <tr><th class="text-muted">Deductions</th><td>-{{ record.deductions }}</td></tr>
+      <tr><th class="text-muted">Net Salary</th><td><strong>{{ net_salary }}</strong></td></tr>
+      {% if record.payment_status.value == "paid" %}
+      <tr><th class="text-muted">Payment Date</th><td>{{ record.payment_date }}</td></tr>
+      <tr><th class="text-muted">Paid By</th><td>{{ record.paid_by.name if record.paid_by else "—" }}</td></tr>
+      {% endif %}
+      {% if record.notes %}<tr><th class="text-muted">Notes</th><td>{{ record.notes }}</td></tr>{% endif %}
+    </table>
+  </div>
+</div>
+{% if current_user.role.value in ("admin", "accountant") %}
+<a href="{{ url_for('salaries.list_salaries') }}" class="btn btn-outline-secondary btn-sm mt-3">Back to Salaries</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">Edit Salary — {{ record.recipient_name }}</h4>
+<p class="text-muted">{{ record.month.strftime("%B %Y") }}</p>
+<div class="card shadow-sm" style="max-width: 480px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">{{ form.month.label(class="form-label") }}{{ form.month(class="form-control", type="date") }}</div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.basic_salary.label(class="form-label") }}
+          {{ form.basic_salary(class="form-control" + (" is-invalid" if form.basic_salary.errors else "")) }}
+          {% for e in form.basic_salary.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">{{ form.allowances.label(class="form-label") }}{{ form.allowances(class="form-control") }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">{{ form.bonus.label(class="form-label") }}{{ form.bonus(class="form-control") }}</div>
+        <div class="col-md-6 mb-3">{{ form.deductions.label(class="form-label") }}{{ form.deductions(class="form-control") }}</div>
+      </div>
+      <div class="mb-3">{{ form.notes.label(class="form-label") }}{{ form.notes(class="form-control", rows=2) }}</div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('salaries.view_salary', salary_id=record.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

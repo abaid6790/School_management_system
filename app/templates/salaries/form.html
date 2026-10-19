@@ -1,0 +1,62 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Generate Salary Record</h4>
+<div class="card shadow-sm" style="max-width: 520px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        <label class="form-label">Recipient Type</label>
+        <select id="recipient_role" name="recipient_role" class="form-select" required>
+          <option value="">Choose one</option>
+          <option value="teacher">Teacher</option>
+          <option value="staff">Staff</option>
+        </select>
+      </div>
+      <div class="mb-3" id="teacher-picker" style="display:none;">
+        <label class="form-label">Teacher</label>
+        <select name="teacher_user_id" class="form-select">
+          <option value="">Choose a teacher</option>
+          {% for t in teachers %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="mb-3" id="staff-picker" style="display:none;">
+        <label class="form-label">Staff Member</label>
+        <select name="staff_id" class="form-select">
+          <option value="">Choose a staff member</option>
+          {% for s in staff_members %}<option value="{{ s.id }}">{{ s.name }} ({{ s.position }})</option>{% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        {{ form.month.label(class="form-label") }}
+        {{ form.month(class="form-control" + (" is-invalid" if form.month.errors else ""), type="date") }}
+        {% for e in form.month.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        <div class="form-text">Any date within the target month works — it's normalized to the 1st.</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.basic_salary.label(class="form-label") }}
+          {{ form.basic_salary(class="form-control" + (" is-invalid" if form.basic_salary.errors else "")) }}
+          {% for e in form.basic_salary.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">{{ form.allowances.label(class="form-label") }}{{ form.allowances(class="form-control") }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">{{ form.bonus.label(class="form-label") }}{{ form.bonus(class="form-control") }}</div>
+        <div class="col-md-6 mb-3">{{ form.deductions.label(class="form-label") }}{{ form.deductions(class="form-control") }}</div>
+      </div>
+      <div class="mb-3">{{ form.notes.label(class="form-label") }}{{ form.notes(class="form-control", rows=2) }}</div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('salaries.list_salaries') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+<script>
+  const roleSelect = document.getElementById("recipient_role");
+  const pickers = { teacher: document.getElementById("teacher-picker"), staff: document.getElementById("staff-picker") };
+  roleSelect.addEventListener("change", () => {
+    Object.values(pickers).forEach(p => p.style.display = "none");
+    if (pickers[roleSelect.value]) pickers[roleSelect.value].style.display = "block";
+  });
+</script>
+{% endblock %}

@@ -24,6 +24,9 @@ from app.models.fee_type import FeeType
 from app.models.student_fee import StudentFee
 from app.models.fee_discount import FeeDiscount
 from app.models.fee_payment import FeePayment
+from app.models.expense_category import ExpenseCategory
+from app.models.expense import Expense
+from app.models.salary_record import SalaryRecord
 
 __all__ = [
     "School",
@@ -55,4 +58,7 @@ __all__ = [
     "StudentFee",
     "FeeDiscount",
     "FeePayment",
+    "ExpenseCategory",
+    "Expense",
+    "SalaryRecord",
 ]

@@ -141,6 +141,16 @@ class FeeStatus(str, enum.Enum):
     OVERDUE = "overdue"
 
 
+class SalaryRecipientRole(str, enum.Enum):
+    TEACHER = "teacher"
+    STAFF = "staff"
+
+
+class SalaryPaymentStatus(str, enum.Enum):
+    PENDING = "pending"
+    PAID = "paid"
+
+
 class DocumentType(str, enum.Enum):
     ADMISSION_FORM = "admission_form"
     BIRTH_CERTIFICATE = "birth_certificate"

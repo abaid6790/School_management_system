@@ -51,6 +51,9 @@ def create_app(config_name=None):
     from app.routes.timetable import timetable_bp
     from app.routes.exams import exams_bp
     from app.routes.fees import fees_bp
+    from app.routes.expenses import expenses_bp
+    from app.routes.salaries import salaries_bp
+    from app.routes.reports import reports_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(dashboard_bp)
@@ -66,6 +69,9 @@ def create_app(config_name=None):
     app.register_blueprint(timetable_bp)
     app.register_blueprint(exams_bp)
     app.register_blueprint(fees_bp)
+    app.register_blueprint(expenses_bp)
+    app.register_blueprint(salaries_bp)
+    app.register_blueprint(reports_bp)
 
     # Temporary health-check — useful during setup, harmless to keep long-term.
     health_bp = Blueprint("health", __name__)
