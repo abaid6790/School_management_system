@@ -38,6 +38,7 @@ GROUPS = [
     ("Examinations (Phase 5)", ["exams", "exam_subjects", "marks", "grade_bands", "report_card_remarks"]),
     ("Student fees (Phase 6)", ["fee_types", "student_fees", "fee_discounts", "fee_payments"]),
     ("School finance (Phase 7)", ["expense_categories", "expenses", "salary_records"]),
+    ("Communication (Phase 8)", ["notices", "events", "homework", "homework_submissions", "ptm_meetings", "ptm_appointments", "notifications"]),
 ]
 
 
@@ -77,13 +78,13 @@ def schema_doc():
                     typ = str(col.type)
                 out.append(f"| `{col.name}` | {typ} | {'yes' if col.nullable else 'no'} | {'; '.join(notes)} |")
             cons = []
-            for c in t.constraints:
-                cls, cname = c.__class__.__name__, c.name or ""
+            for c in sorted(t.constraints, key=lambda c: (c.__class__.__name__, c.name or "")):
+                cls, cname = c.__class__.__name__, c.name or "(unnamed)"
                 if cls == "UniqueConstraint":
                     cons.append(f"- **UNIQUE** `{cname}` on ({', '.join(col.name for col in c.columns)})")
                 elif cls == "CheckConstraint":
                     cons.append(f"- **CHECK** `{cname}`: `{ws.sub(' ', str(c.sqltext))}`")
-            for ix in t.indexes:
+            for ix in sorted(t.indexes, key=lambda i: i.name or ""):
                 if ix.unique and ix.name and not ix.name.startswith("ix_"):
                     partial = ix.dialect_options["postgresql"].get("where") is not None
                     cons.append(f"- **UNIQUE INDEX** `{ix.name}` on ({', '.join(c.name for c in ix.columns)})" + (" — partial" if partial else ""))

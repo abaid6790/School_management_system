@@ -158,3 +158,67 @@ class DocumentType(str, enum.Enum):
     CNIC_BFORM = "cnic_bform"
     TRANSFER_CERTIFICATE = "transfer_certificate"
     OTHER = "other"
+
+
+# ---- Phase 8: communication & engagement ------------------------------------
+
+class NoticeAudience(str, enum.Enum):
+    ALL = "all"            # everyone in the school
+    STAFF = "staff"        # all logged-in staff roles
+    TEACHERS = "teachers"
+    PARENTS = "parents"    # guardians
+    STUDENTS = "students"
+    CLASS = "class"        # one class (optionally one section) — its students and their guardians
+
+
+class NoticeStatus(str, enum.Enum):
+    DRAFT = "draft"
+    PUBLISHED = "published"
+    ARCHIVED = "archived"
+
+
+class EventType(str, enum.Enum):
+    HOLIDAY = "holiday"
+    EXAM = "exam"
+    SPORTS = "sports"
+    CULTURAL = "cultural"
+    MEETING = "meeting"
+    TRIP = "trip"
+    OTHER = "other"
+
+
+class HomeworkStatus(str, enum.Enum):
+    ACTIVE = "active"
+    CANCELLED = "cancelled"
+
+
+class SubmissionStatus(str, enum.Enum):
+    SUBMITTED = "submitted"
+    LATE = "late"
+    MISSING = "missing"
+    EXCUSED = "excused"
+
+
+class MeetingStatus(str, enum.Enum):
+    SCHEDULED = "scheduled"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class AppointmentStatus(str, enum.Enum):
+    SCHEDULED = "scheduled"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    NO_SHOW = "no_show"
+
+
+class NotificationType(str, enum.Enum):
+    GENERAL = "general"
+    NOTICE = "notice"
+    HOMEWORK = "homework"
+    EVENT = "event"
+    PTM = "ptm"
+    FEE_DUE = "fee_due"
+    LEAVE = "leave"
+    ATTENDANCE = "attendance"
+    RESULT = "result"

@@ -2,7 +2,7 @@
 
 > **Generated from the SQLAlchemy models** (`app/models/`) — do not edit by hand. Regenerate with `python tools/generate_docs.py` after any model change.
 
-**32 tables.** Every tenant-owned table carries an indexed `school_id` foreign key — see [ARCHITECTURE.md](ARCHITECTURE.md) for how multi-tenancy is enforced.
+**39 tables.** Every tenant-owned table carries an indexed `school_id` foreign key — see [ARCHITECTURE.md](ARCHITECTURE.md) for how multi-tenancy is enforced.
 
 ## Foundation (Phase 0)
 
@@ -44,8 +44,8 @@
 
 Constraints:
 
-- **UNIQUE** `` on (verification_token)
 - **CHECK** `ck_super_admin_has_no_school`: `(role = 'SUPER_ADMIN' AND school_id IS NULL) OR (role != 'SUPER_ADMIN' AND school_id IS NOT NULL)`
+- **UNIQUE** `(unnamed)` on (verification_token)
 
 ### `academic_sessions`
 
@@ -63,8 +63,8 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `uq_session_school_name` on (school_id, name)
 - **CHECK** `ck_session_end_after_start`: `end_date > start_date`
+- **UNIQUE** `uq_session_school_name` on (school_id, name)
 - **UNIQUE INDEX** `uq_one_active_session_per_school` on (school_id) — partial
 
 ### `classes`
@@ -123,8 +123,8 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `uq_subject_school_class_code` on (school_id, class_id, code)
 - **CHECK** `ck_subject_passing_le_max`: `passing_marks <= max_marks`
+- **UNIQUE** `uq_subject_school_class_code` on (school_id, class_id, code)
 
 ### `school_settings`
 
@@ -143,7 +143,7 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `` on (school_id)
+- **UNIQUE** `(unnamed)` on (school_id)
 
 ### `audit_logs`
 
@@ -287,7 +287,7 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `` on (user_id)
+- **UNIQUE** `(unnamed)` on (user_id)
 - **UNIQUE** `uq_teacher_school_employee_id` on (school_id, employee_id)
 
 ### `staff`
@@ -312,7 +312,7 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `` on (user_id)
+- **UNIQUE** `(unnamed)` on (user_id)
 - **UNIQUE** `uq_staff_school_employee_id` on (school_id, employee_id)
 
 ## Attendance & leave (Phase 3)
@@ -380,8 +380,8 @@ Constraints:
 
 Constraints:
 
-- **CHECK** `ck_leave_exactly_one_applicant`: `(applicant_role = 'STUDENT' AND student_id IS NOT NULL AND teacher_user_id IS NULL AND staff_id IS NULL) OR (applicant_role = 'TEACHER' AND teacher_user_id IS NOT NULL AND student_id IS NULL AND staff_id IS NULL) OR (applicant_role = 'STAFF' AND staff_id IS NOT NULL AND student_id IS NULL AND teacher_user_id IS NULL)`
 - **CHECK** `ck_leave_end_after_start`: `end_date >= start_date`
+- **CHECK** `ck_leave_exactly_one_applicant`: `(applicant_role = 'STUDENT' AND student_id IS NOT NULL AND teacher_user_id IS NULL AND staff_id IS NULL) OR (applicant_role = 'TEACHER' AND teacher_user_id IS NOT NULL AND student_id IS NULL AND staff_id IS NULL) OR (applicant_role = 'STAFF' AND staff_id IS NOT NULL AND student_id IS NULL AND teacher_user_id IS NULL)`
 
 ## Timetable (Phase 4)
 
@@ -401,8 +401,8 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `uq_period_school_name` on (school_id, name)
 - **CHECK** `ck_period_end_after_start`: `end_time > start_time`
+- **UNIQUE** `uq_period_school_name` on (school_id, name)
 - **UNIQUE** `uq_period_school_order` on (school_id, order_index)
 
 ### `timetable_entries`
@@ -424,9 +424,9 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `uq_timetable_teacher_slot` on (session_id, teacher_id, day_of_week, period_id)
 - **UNIQUE** `uq_timetable_room_slot` on (session_id, room, day_of_week, period_id)
 - **UNIQUE** `uq_timetable_section_slot` on (session_id, section_id, day_of_week, period_id)
+- **UNIQUE** `uq_timetable_teacher_slot` on (session_id, teacher_id, day_of_week, period_id)
 
 ## Examinations (Phase 5)
 
@@ -449,8 +449,8 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `uq_exam_school_session_class_name` on (school_id, session_id, class_id, name)
 - **CHECK** `ck_exam_end_after_start`: `end_date >= start_date`
+- **UNIQUE** `uq_exam_school_session_class_name` on (school_id, session_id, class_id, name)
 
 ### `exam_subjects`
 
@@ -598,8 +598,8 @@ Constraints:
 
 Constraints:
 
-- **UNIQUE** `uq_fee_payment_school_receipt` on (school_id, receipt_number)
 - **CHECK** `ck_fee_payment_amount_positive`: `amount > 0`
+- **UNIQUE** `uq_fee_payment_school_receipt` on (school_id, receipt_number)
 
 ## School finance (Phase 7)
 
@@ -663,7 +663,171 @@ Constraints:
 
 Constraints:
 
+- **CHECK** `ck_salary_amounts_non_negative`: `basic_salary >= 0 AND allowances >= 0 AND deductions >= 0 AND bonus >= 0`
 - **CHECK** `ck_salary_exactly_one_recipient`: `(recipient_role = 'TEACHER' AND teacher_user_id IS NOT NULL AND staff_id IS NULL) OR (recipient_role = 'STAFF' AND staff_id IS NOT NULL AND teacher_user_id IS NULL)`
 - **UNIQUE** `uq_salary_staff_month` on (staff_id, month)
-- **CHECK** `ck_salary_amounts_non_negative`: `basic_salary >= 0 AND allowances >= 0 AND deductions >= 0 AND bonus >= 0`
 - **UNIQUE** `uq_salary_teacher_month` on (teacher_user_id, month)
+
+## Communication (Phase 8)
+
+### `notices`
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | INTEGER | no | PK |
+| `school_id` | INTEGER | no | FK → `schools.id` (ON DELETE CASCADE); indexed |
+| `title` | VARCHAR(200) | no |  |
+| `body` | TEXT | no |  |
+| `audience` | notice_audience | no |  |
+| `class_id` | INTEGER | yes | FK → `classes.id` (ON DELETE CASCADE) |
+| `section_id` | INTEGER | yes | FK → `sections.id` (ON DELETE CASCADE) |
+| `status` | notice_status | no |  |
+| `published_at` | TIMESTAMP WITH TIME ZONE | yes |  |
+| `expires_on` | DATE | yes |  |
+| `is_pinned` | BOOLEAN | no |  |
+| `created_by_id` | INTEGER | yes | FK → `users.id` (ON DELETE SET NULL) |
+| `created_at` | TIMESTAMP WITH TIME ZONE | no |  |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | no |  |
+
+Constraints:
+
+- **CHECK** `ck_notice_class_target`: `(audience = 'CLASS' AND class_id IS NOT NULL) OR (audience <> 'CLASS' AND class_id IS NULL AND section_id IS NULL)`
+- **CHECK** `ck_notice_section_needs_class`: `section_id IS NULL OR class_id IS NOT NULL`
+
+### `events`
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | INTEGER | no | PK |
+| `school_id` | INTEGER | no | FK → `schools.id` (ON DELETE CASCADE); indexed |
+| `title` | VARCHAR(200) | no |  |
+| `description` | TEXT | yes |  |
+| `event_type` | event_type | no |  |
+| `start_date` | DATE | no |  |
+| `end_date` | DATE | no |  |
+| `start_time` | TIME WITHOUT TIME ZONE | yes |  |
+| `end_time` | TIME WITHOUT TIME ZONE | yes |  |
+| `location` | VARCHAR(150) | yes |  |
+| `is_holiday` | BOOLEAN | no |  |
+| `created_by_id` | INTEGER | yes | FK → `users.id` (ON DELETE SET NULL) |
+| `created_at` | TIMESTAMP WITH TIME ZONE | no |  |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | no |  |
+
+Constraints:
+
+- **CHECK** `ck_event_date_order`: `end_date >= start_date`
+- **CHECK** `ck_event_time_order`: `start_time IS NULL OR end_time IS NULL OR end_date > start_date OR end_time > start_time`
+
+### `homework`
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | INTEGER | no | PK |
+| `school_id` | INTEGER | no | FK → `schools.id` (ON DELETE CASCADE); indexed |
+| `session_id` | INTEGER | no | FK → `academic_sessions.id` (ON DELETE CASCADE) |
+| `class_id` | INTEGER | no | FK → `classes.id` (ON DELETE CASCADE) |
+| `section_id` | INTEGER | yes | FK → `sections.id` (ON DELETE CASCADE) |
+| `subject_id` | INTEGER | no | FK → `subjects.id` (ON DELETE CASCADE) |
+| `teacher_id` | INTEGER | yes | FK → `users.id` (ON DELETE SET NULL) |
+| `title` | VARCHAR(200) | no |  |
+| `description` | TEXT | yes |  |
+| `assigned_date` | DATE | no |  |
+| `due_date` | DATE | no |  |
+| `status` | homework_status | no |  |
+| `created_at` | TIMESTAMP WITH TIME ZONE | no |  |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | no |  |
+
+Constraints:
+
+- **CHECK** `ck_homework_due_after_assigned`: `due_date >= assigned_date`
+- **CHECK** `ck_homework_section_needs_class`: `section_id IS NULL OR class_id IS NOT NULL`
+
+### `homework_submissions`
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | INTEGER | no | PK |
+| `school_id` | INTEGER | no | FK → `schools.id` (ON DELETE CASCADE); indexed |
+| `homework_id` | INTEGER | no | FK → `homework.id` (ON DELETE CASCADE); indexed |
+| `student_id` | INTEGER | no | FK → `students.id` (ON DELETE CASCADE); indexed |
+| `status` | submission_status | no |  |
+| `submitted_on` | DATE | yes |  |
+| `remarks` | VARCHAR(255) | yes |  |
+| `marked_by_id` | INTEGER | yes | FK → `users.id` (ON DELETE SET NULL) |
+| `created_at` | TIMESTAMP WITH TIME ZONE | no |  |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | no |  |
+
+Constraints:
+
+- **UNIQUE** `uq_submission_homework_student` on (homework_id, student_id)
+
+### `ptm_meetings`
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | INTEGER | no | PK |
+| `school_id` | INTEGER | no | FK → `schools.id` (ON DELETE CASCADE); indexed |
+| `session_id` | INTEGER | no | FK → `academic_sessions.id` (ON DELETE CASCADE) |
+| `class_id` | INTEGER | yes | FK → `classes.id` (ON DELETE CASCADE) |
+| `section_id` | INTEGER | yes | FK → `sections.id` (ON DELETE CASCADE) |
+| `title` | VARCHAR(200) | no |  |
+| `description` | TEXT | yes |  |
+| `meeting_date` | DATE | no | indexed |
+| `start_time` | TIME WITHOUT TIME ZONE | no |  |
+| `end_time` | TIME WITHOUT TIME ZONE | no |  |
+| `slot_minutes` | INTEGER | no |  |
+| `location` | VARCHAR(150) | yes |  |
+| `status` | meeting_status | no |  |
+| `created_by_id` | INTEGER | yes | FK → `users.id` (ON DELETE SET NULL) |
+| `created_at` | TIMESTAMP WITH TIME ZONE | no |  |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | no |  |
+
+Constraints:
+
+- **CHECK** `ck_ptm_section_needs_class`: `section_id IS NULL OR class_id IS NOT NULL`
+- **CHECK** `ck_ptm_slot_minutes`: `slot_minutes BETWEEN 5 AND 120`
+- **CHECK** `ck_ptm_time_order`: `end_time > start_time`
+
+### `ptm_appointments`
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | INTEGER | no | PK |
+| `school_id` | INTEGER | no | FK → `schools.id` (ON DELETE CASCADE); indexed |
+| `meeting_id` | INTEGER | no | FK → `ptm_meetings.id` (ON DELETE CASCADE); indexed |
+| `student_id` | INTEGER | no | FK → `students.id` (ON DELETE CASCADE); indexed |
+| `teacher_id` | INTEGER | no | FK → `users.id` (ON DELETE CASCADE); indexed |
+| `guardian_id` | INTEGER | yes | FK → `guardians.id` (ON DELETE SET NULL) |
+| `slot_start` | TIME WITHOUT TIME ZONE | no |  |
+| `status` | appointment_status | no |  |
+| `notes` | TEXT | yes |  |
+| `created_at` | TIMESTAMP WITH TIME ZONE | no |  |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | no |  |
+
+Constraints:
+
+- **UNIQUE INDEX** `uq_ptm_student_slot_active` on (meeting_id, student_id, slot_start) — partial
+- **UNIQUE INDEX** `uq_ptm_teacher_slot_active` on (meeting_id, teacher_id, slot_start) — partial
+
+### `notifications`
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | INTEGER | no | PK |
+| `school_id` | INTEGER | no | FK → `schools.id` (ON DELETE CASCADE); indexed |
+| `recipient_user_id` | INTEGER | yes | FK → `users.id` (ON DELETE CASCADE) |
+| `recipient_guardian_id` | INTEGER | yes | FK → `guardians.id` (ON DELETE CASCADE) |
+| `notification_type` | notification_type | no |  |
+| `title` | VARCHAR(200) | no |  |
+| `message` | TEXT | no |  |
+| `link_url` | VARCHAR(300) | yes |  |
+| `is_read` | BOOLEAN | no |  |
+| `read_at` | TIMESTAMP WITH TIME ZONE | yes |  |
+| `emailed_at` | TIMESTAMP WITH TIME ZONE | yes |  |
+| `email_error` | VARCHAR(255) | yes |  |
+| `created_at` | TIMESTAMP WITH TIME ZONE | no |  |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | no |  |
+
+Constraints:
+
+- **CHECK** `ck_notification_exactly_one_recipient`: `(recipient_user_id IS NOT NULL AND recipient_guardian_id IS NULL) OR (recipient_user_id IS NULL AND recipient_guardian_id IS NOT NULL)`

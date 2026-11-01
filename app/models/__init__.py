@@ -27,6 +27,13 @@ from app.models.fee_payment import FeePayment
 from app.models.expense_category import ExpenseCategory
 from app.models.expense import Expense
 from app.models.salary_record import SalaryRecord
+from app.models.notice import Notice
+from app.models.event import Event
+from app.models.homework import Homework
+from app.models.homework_submission import HomeworkSubmission
+from app.models.ptm_meeting import PTMMeeting
+from app.models.ptm_appointment import PTMAppointment
+from app.models.notification import Notification
 
 __all__ = [
     "School",
@@ -61,4 +68,11 @@ __all__ = [
     "ExpenseCategory",
     "Expense",
     "SalaryRecord",
+    "Notice",
+    "Event",
+    "Homework",
+    "HomeworkSubmission",
+    "PTMMeeting",
+    "PTMAppointment",
+    "Notification",
 ]
