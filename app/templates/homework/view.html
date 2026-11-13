@@ -1,0 +1,95 @@
+{% extends "shell.html" %}
+{% block content %}
+{% set label, colour = state %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-1">{{ homework.title }}</h4>
+    <div class="text-muted">
+      {{ homework.school_class.name }}{% if homework.section %} – {{ homework.section.name }}{% else %} (all sections){% endif %}
+      · {{ homework.subject.name }} · {{ homework.teacher.name if homework.teacher else "No teacher" }}
+    </div>
+    <div class="mt-1">
+      <span class="badge text-bg-{{ colour }}">{{ label }}</span>
+      <span class="small text-muted">Assigned {{ homework.assigned_date.strftime("%d %b %Y") }} · Due {{ homework.due_date.strftime("%d %b %Y") }}</span>
+    </div>
+  </div>
+  {% if manage %}
+  <div>
+    <a href="{{ url_for('homework.edit_homework', homework_id=homework.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    {% if homework.status.value == "active" %}
+    <form method="POST" action="{{ url_for('homework.cancel_homework', homework_id=homework.id) }}" class="d-inline" onsubmit="return confirm('Cancel this homework? Its records are kept.');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Cancel homework</button>
+    </form>
+    {% else %}
+    <form method="POST" action="{{ url_for('homework.reinstate_homework', homework_id=homework.id) }}" class="d-inline">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-success btn-sm">Reinstate</button>
+    </form>
+    {% endif %}
+    <form method="POST" action="{{ url_for('homework.delete_homework', homework_id=homework.id) }}" class="d-inline" onsubmit="return confirm('Delete this homework?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+{% if homework.description %}
+<div class="card shadow-sm mb-3"><div class="card-body" style="white-space: pre-wrap;">{{ homework.description }}</div></div>
+{% endif %}
+
+<div class="row g-2 mb-3 text-center">
+  <div class="col"><div class="card shadow-sm"><div class="card-body py-2"><div class="fs-5 text-success">{{ summary.submitted }}</div><div class="small text-muted">Submitted</div></div></div></div>
+  <div class="col"><div class="card shadow-sm"><div class="card-body py-2"><div class="fs-5 text-warning">{{ summary.late }}</div><div class="small text-muted">Late</div></div></div></div>
+  <div class="col"><div class="card shadow-sm"><div class="card-body py-2"><div class="fs-5 text-danger">{{ summary.missing }}</div><div class="small text-muted">Missing</div></div></div></div>
+  <div class="col"><div class="card shadow-sm"><div class="card-body py-2"><div class="fs-5">{{ summary.excused }}</div><div class="small text-muted">Excused</div></div></div></div>
+  <div class="col"><div class="card shadow-sm"><div class="card-body py-2"><div class="fs-5 text-muted">{{ summary.not_recorded }}</div><div class="small text-muted">Not recorded</div></div></div></div>
+  <div class="col"><div class="card shadow-sm"><div class="card-body py-2"><div class="fs-5">{{ summary.percent ~ "%" if summary.percent is not none else "—" }}</div><div class="small text-muted">Handed in</div></div></div></div>
+</div>
+
+<form method="POST" action="{{ url_for('homework.save_submissions', homework_id=homework.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Students ({{ students | length }})</span>
+      {% if manage and homework.status.value == "active" %}
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.querySelectorAll('select.sub-status').forEach(s => { if (!s.value) s.value = 'submitted'; });">Mark unrecorded as submitted</button>
+      {% endif %}
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light"><tr><th style="width:80px">Roll</th><th>Student</th><th style="width:200px">Status</th><th>Remarks</th></tr></thead>
+        <tbody>
+          {% for s in students %}
+          {% set row = rows.get(s.id) %}
+          <tr>
+            <td>{{ s.current_roll_number or "—" }}</td>
+            <td>{{ s.name }}</td>
+            {% if manage and homework.status.value == "active" %}
+            <td>
+              <select name="status_{{ s.id }}" class="form-select form-select-sm sub-status">
+                <option value="">— not recorded —</option>
+                {% for st in statuses %}<option value="{{ st.value }}" {{ "selected" if row and row.status == st else "" }}>{{ st.value.title() }}</option>{% endfor %}
+              </select>
+            </td>
+            <td><input type="text" name="remarks_{{ s.id }}" value="{{ row.remarks if row and row.remarks else '' }}" maxlength="255" class="form-control form-control-sm"></td>
+            {% else %}
+            <td>{% if row %}<span class="badge text-bg-{{ {'submitted': 'success', 'late': 'warning', 'missing': 'danger', 'excused': 'secondary'}[row.status.value] }}">{{ row.status.value.title() }}</span>{% else %}<span class="text-muted">Not recorded</span>{% endif %}</td>
+            <td>{{ row.remarks if row and row.remarks else "" }}</td>
+            {% endif %}
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-center text-muted py-4">There are no active students in this class{% if homework.section %} and section{% endif %}.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if manage and homework.status.value == "active" and students %}
+    <div class="card-footer"><button type="submit" class="btn btn-primary">Save submissions</button></div>
+    {% endif %}
+  </div>
+</form>
+{% if not manage %}<p class="text-muted small mt-2">Only the assigned teacher or an Admin can record submissions.</p>{% endif %}
+<a href="{{ url_for('homework.list_homework') }}" class="btn btn-outline-secondary btn-sm mt-3">Back to homework</a>
+{% endblock %}

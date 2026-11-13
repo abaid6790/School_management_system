@@ -59,6 +59,7 @@
                   <a href="{{ url_for('timetable.entry_edit', entry_id=e.id) }}" class="link-secondary">Edit</a>
                   <form method="POST" action="{{ url_for('timetable.entry_delete', entry_id=e.id) }}" class="d-inline"
                         onsubmit="return confirm('Remove this timetable entry?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-1">Remove</button>
                   </form>
                   {% endif %}

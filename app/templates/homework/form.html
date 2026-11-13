@@ -1,0 +1,85 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">Assign Homework</h4>
+<div class="card shadow-sm" style="max-width: 680px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.class_id.label(class="form-label") }}
+          {{ form.class_id(class="form-select" + (" is-invalid" if form.class_id.errors else "")) }}
+          {% for e in form.class_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.section_id.label(class="form-label") }}
+          {{ form.section_id(class="form-select" + (" is-invalid" if form.section_id.errors else "")) }}
+          {% for e in form.section_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.subject_id.label(class="form-label") }}
+          {{ form.subject_id(class="form-select" + (" is-invalid" if form.subject_id.errors else "")) }}
+          {% for e in form.subject_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        {% if form.teacher_id %}
+        <div class="col-md-6 mb-3">
+          {{ form.teacher_id.label(class="form-label") }}
+          {{ form.teacher_id(class="form-select" + (" is-invalid" if form.teacher_id.errors else "")) }}
+          {% for e in form.teacher_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+        {% for e in form.title.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=5) }}
+        {% for e in form.description.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        <div class="form-text">Plain text. Line breaks are kept.</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.assigned_date.label(class="form-label") }}
+          {{ form.assigned_date(class="form-control" + (" is-invalid" if form.assigned_date.errors else ""), type="date") }}
+          {% for e in form.assigned_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.due_date.label(class="form-label") }}
+          {{ form.due_date(class="form-control" + (" is-invalid" if form.due_date.errors else ""), type="date") }}
+          {% for e in form.due_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Assign</button>
+      <a href="{{ url_for('homework.list_homework') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+<script>
+  const sectionsByClass = {{ sections_by_class | tojson }};
+  const subjectsByClass = {{ subjects_by_class | tojson }};
+  const classSel = document.getElementById("class_id");
+  const sectionSel = document.getElementById("section_id");
+  const subjectSel = document.getElementById("subject_id");
+  const keepSection = "{{ form.section_id.data or 0 }}", keepSubject = "{{ form.subject_id.data or 0 }}";
+
+  function fill(sel, items, first, keep) {
+    sel.innerHTML = '<option value="0">' + first + '</option>';
+    items.forEach(([id, name]) => {
+      const o = document.createElement("option"); o.value = id; o.textContent = name;
+      if (keep && String(id) === keep) o.selected = true;
+      sel.appendChild(o);
+    });
+  }
+  function refresh(keep) {
+    fill(sectionSel, sectionsByClass[classSel.value] || [], "All sections", keep ? keepSection : null);
+    fill(subjectSel, subjectsByClass[classSel.value] || [], "— choose a subject —", keep ? keepSubject : null);
+  }
+  classSel.addEventListener("change", () => refresh(false));
+  refresh(true);
+</script>
+{% endblock %}

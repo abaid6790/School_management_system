@@ -1,0 +1,46 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-1">{% if notice.is_pinned %}<i class="bi bi-pin-angle-fill text-warning"></i> {% endif %}{{ notice.title }}</h4>
+    <div class="text-muted small">
+      For: {{ audience_text }}
+      {% if notice.published_at %} · Posted {{ notice.published_at.strftime("%d %b %Y") }}{% endif %}
+      {% if notice.expires_on %} · Expires {{ notice.expires_on }}{% endif %}
+    </div>
+    {% if is_admin %}
+    <div class="mt-2">
+      <span class="badge {{ 'bg-success' if notice.status.value == 'published' else ('bg-secondary' if notice.status.value == 'archived' else 'bg-warning text-dark') }}">{{ notice.status.value.title() }}</span>
+      {% if expired %}<span class="badge bg-danger">Expired</span>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% if is_admin %}
+  <div>
+    <a href="{{ url_for('notices.edit_notice', notice_id=notice.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    {% if notice.status.value != "published" %}
+    <form method="POST" action="{{ url_for('notices.publish_notice', notice_id=notice.id) }}" class="d-inline">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-success btn-sm">{{ "Publish" if notice.status.value == "draft" else "Re-publish" }}</button>
+    </form>
+    {% else %}
+    <form method="POST" action="{{ url_for('notices.archive_notice', notice_id=notice.id) }}" class="d-inline" onsubmit="return confirm('Archive this notice? It will disappear from the board.');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Archive</button>
+    </form>
+    {% endif %}
+    {% if notice.status.value == "draft" %}
+    <form method="POST" action="{{ url_for('notices.delete_notice', notice_id=notice.id) }}" class="d-inline" onsubmit="return confirm('Delete this draft?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Delete draft</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body" style="white-space: pre-wrap;">{{ notice.body }}</div>
+</div>
+<a href="{{ url_for('notices.list_notices') }}" class="btn btn-outline-secondary btn-sm mt-3">Back to notices</a>
+{% endblock %}

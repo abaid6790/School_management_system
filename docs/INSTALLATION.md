@@ -57,6 +57,8 @@ Then edit `.env`:
 | `APP_NAME` | no | Shown in the sidebar and emails. |
 | `UPLOAD_FOLDER` | no | Where uploaded student documents are stored. Default `instance/uploads` inside the project. |
 | `APP_HOST`, `APP_PORT` | no | Dev server binding for `python run.py`. Default `127.0.0.1:5000`. |
+| `GUARDIAN_EMAILS_ENABLED` | no | `True` (default). Set `False` to record notifications without emailing guardians (the delivery log then says why nothing was sent). |
+| `NOTIFICATIONS_EMAIL_SYNC` | no | `False` (default): guardian emails are sent in a background thread so a large mailing doesn't block the page. `True` sends inside the request (slower; mainly for testing). |
 
 `.env` holds secrets — never commit it or share it. (`.gitignore` already excludes it.)
 
@@ -69,6 +71,8 @@ Regular Gmail passwords do not work for SMTP. You need an **App Password**:
 3. Google shows a 16-character code. Put it in `MAIL_PASSWORD` **without spaces**, and put the full address in `MAIL_USERNAME`.
 
 The app sends email for: school-registration **verification** (link valid 24 hours), **password reset** (1 hour), and **account setup** for teachers and login-enabled staff created by an Admin (24 hours). If sending fails, the app tells you instead of pretending it worked, and writes the reason to the terminal log.
+
+It also emails **guardians** (who have no logins) about notices, homework, school closures, meeting appointments, leave decisions and fee reminders. For that to work, SMTP must be configured and each guardian record needs an email address; the **Notifications → Email delivery log** (Admin) shows exactly what was sent, what failed and why, and lets you retry.
 
 ## 7. Create the tables
 
@@ -150,6 +154,7 @@ The built-in `python run.py` server is for development. For real use:
 4. **School registration is open**: anyone who can reach `/auth/register` can create a new school (it is isolated from yours, but it still consumes resources). For a single-school deployment, restrict access at the network/proxy level or remove the route. See [ARCHITECTURE.md](ARCHITECTURE.md#security-measures-and-known-gaps).
 5. Back up regularly (section 11) — both the database **and** the uploads folder.
 6. "Today" for overdue calculations, default report ranges and attendance defaults is the **server's local date**.
+7. Guardian emails are sent from a background thread, one SMTP connection per message. If the server restarts mid-mailing, unsent emails stay *pending* until an Admin presses **Retry** on the delivery log.
 
 ## 11. Backups
 
@@ -172,4 +177,5 @@ pg_restore -U postgres -d school_management_db_restored sms_backup.dump
 2. Unzip the new version over a copy of the project, keeping your `.env` and uploads folder.
 3. Activate the venv, then `pip install -r requirements.txt`.
 4. Run `flask db upgrade`.
+   (Phase 8 adds a migration, and the Phase 8 package also includes the CSRF-token fix for the 23 forms that lacked one. If you are still on a Phase 7 copy, `csrf_hotfix.py` applies just that fix.)
 5. Restart the server.

@@ -1,0 +1,30 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-1">{{ event.title }}</h4>
+    <span class="badge text-bg-{{ color }}">{{ event.event_type.value.title() }}</span>
+    {% if event.is_holiday %}<span class="badge text-bg-danger">School closed</span>{% endif %}
+  </div>
+  {% if is_admin %}
+  <div>
+    <a href="{{ url_for('events.edit_event', event_id=event.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <form method="POST" action="{{ url_for('events.delete_event', event_id=event.id) }}" class="d-inline" onsubmit="return confirm('Delete this event?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+<div class="card shadow-sm" style="max-width: 640px;">
+  <div class="card-body">
+    <table class="table table-sm mb-0">
+      <tr><th class="text-muted" style="width:30%">When</th><td>{{ when }}</td></tr>
+      <tr><th class="text-muted">Time</th><td>{{ at }}</td></tr>
+      <tr><th class="text-muted">Location</th><td>{{ event.location or "—" }}</td></tr>
+      {% if event.description %}<tr><th class="text-muted align-top">Details</th><td style="white-space: pre-wrap;">{{ event.description }}</td></tr>{% endif %}
+    </table>
+  </div>
+</div>
+<a href="{{ url_for('events.calendar_view', year=event.start_date.year, month=event.start_date.month) }}" class="btn btn-outline-secondary btn-sm mt-3">Back to calendar</a>
+{% endblock %}

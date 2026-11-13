@@ -1,0 +1,71 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">{{ title }}</h4>
+{% if locked %}<div class="alert alert-info py-2">Appointments are booked, so the times, appointment length and class are locked. The title, date, location and details can still change.</div>{% endif %}
+<div class="card shadow-sm" style="max-width: 680px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="e.g. Term 1 Parent–Teacher Meeting") }}
+        {% for e in form.title.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.meeting_date.label(class="form-label") }}
+          {{ form.meeting_date(class="form-control" + (" is-invalid" if form.meeting_date.errors else ""), type="date") }}
+          {% for e in form.meeting_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.start_time.label(class="form-label") }}
+          {{ form.start_time(class="form-control" + (" is-invalid" if form.start_time.errors else ""), type="time", readonly=locked) }}
+          {% for e in form.start_time.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.end_time.label(class="form-label") }}
+          {{ form.end_time(class="form-control" + (" is-invalid" if form.end_time.errors else ""), type="time", readonly=locked) }}
+          {% for e in form.end_time.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.slot_minutes.label(class="form-label") }}
+          {{ form.slot_minutes(class="form-control" + (" is-invalid" if form.slot_minutes.errors else ""), type="number", min=5, max=120, readonly=locked) }}
+          {% for e in form.slot_minutes.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-8 mb-3">{{ form.location.label(class="form-label") }}{{ form.location(class="form-control") }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.class_id.label(class="form-label") }}
+          {{ form.class_id(class="form-select" + (" is-invalid" if form.class_id.errors else "")) }}
+          {% for e in form.class_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          <div class="form-text">Leave on "All classes" to allow any student.</div>
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.section_id.label(class="form-label") }}
+          {{ form.section_id(class="form-select" + (" is-invalid" if form.section_id.errors else "")) }}
+          {% for e in form.section_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="mb-3">{{ form.description.label(class="form-label") }}{{ form.description(class="form-control", rows=3) }}</div>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('ptm.view_meeting', meeting_id=meeting.id) if meeting else url_for('ptm.list_meetings') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+<script>
+  const sectionsByClass = {{ sections_by_class | tojson }};
+  const classSel = document.getElementById("class_id"), sectionSel = document.getElementById("section_id");
+  const keepSection = "{{ form.section_id.data or 0 }}";
+  function refresh(keep) {
+    sectionSel.innerHTML = '<option value="0">All sections</option>';
+    (sectionsByClass[classSel.value] || []).forEach(([id, name]) => {
+      const o = document.createElement("option"); o.value = id; o.textContent = name;
+      if (keep && String(id) === keepSection) o.selected = true; sectionSel.appendChild(o);
+    });
+  }
+  classSel.addEventListener("change", () => refresh(false)); refresh(true);
+</script>
+{% endblock %}

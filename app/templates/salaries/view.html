@@ -11,6 +11,7 @@
     {% if current_user.role.value in ("admin", "accountant") and record.payment_status.value != "paid" %}
     <a href="{{ url_for('salaries.edit_salary', salary_id=record.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
     <form method="POST" action="{{ url_for('salaries.mark_paid', salary_id=record.id) }}" class="d-inline">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn btn-success btn-sm">Mark Paid</button>
     </form>
     {% endif %}

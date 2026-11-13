@@ -161,3 +161,8 @@ def downgrade():
 
     op.drop_table('grade_bands')
     # ### end Alembic commands ###
+
+    # PostgreSQL keeps ENUM types after their tables are dropped; remove them so this migration can be re-applied.
+    bind = op.get_bind()
+    sa.Enum(name='exam_type').drop(bind, checkfirst=True)
+    sa.Enum(name='exam_status').drop(bind, checkfirst=True)

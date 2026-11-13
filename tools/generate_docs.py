@@ -94,6 +94,17 @@ def schema_doc():
     return "\n".join(out), len(tables)
 
 
+def expand_roles(raw, consts):
+    """'*ALL_STAFF, UserRole.X' -> 'ADMIN, TEACHER, ..., X' using the module's own role tuples."""
+    out = []
+    for part in [p.strip() for p in raw.split(",") if p.strip()]:
+        if part.startswith("*") and part[1:] in consts:
+            out += [x.strip() for x in consts[part[1:]].split(",")]
+        else:
+            out.append(part)
+    return ", ".join(x.replace("UserRole.", "") for x in out)
+
+
 def routes_doc():
     init = open("app/__init__.py").read()
     reg_prefix = dict(re.findall(r'register_blueprint\((\w+)_bp, url_prefix="([^"]*)"\)', init))
@@ -101,6 +112,7 @@ def routes_doc():
     for f in sorted(glob.glob("app/routes/*.py")):
         src = open(f).read()
         name = Path(f).stem
+        consts = {m.group(1): m.group(2) for m in re.finditer(r"^([A-Z_]+) = \(([^)]*UserRole[^)]*)\)\s*$", src, re.M)}
         m = re.search(r'Blueprint\([^)]*url_prefix="([^"]*)"', src)
         prefix = m.group(1) if m else reg_prefix.get(name, "")
         pending = []
@@ -114,7 +126,8 @@ def routes_doc():
                     path = re.search(r'route\("([^"]*)"', rt).group(1)
                     meth = re.search(r'methods=\[([^\]]*)\]', rt)
                     methods = re.sub(r'["\s]', "", meth.group(1)).replace(",", "/") if meth else "GET"
-                    rr = next((re.search(r"role_required\((.*)\)", p).group(1).replace("UserRole.", "") for p in pending if "role_required" in p), None)
+                    raw = next((re.search(r"role_required\((.*)\)", p).group(1) for p in pending if "role_required" in p), None)
+                    rr = expand_roles(raw, consts) if raw is not None else None
                     if rr is None:
                         rr = "any logged-in user" if any("login_required" in p for p in pending) else "public (no login)"
                     rows.append((name, (prefix + path) or "/", methods, rr))

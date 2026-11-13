@@ -600,3 +600,25 @@ def downgrade():
 
     op.drop_table('schools')
     # ### end Alembic commands ###
+
+    # PostgreSQL keeps ENUM types after their tables are dropped; remove them so this migration can be re-applied.
+    bind = op.get_bind()
+    sa.Enum(name='user_role').drop(bind, checkfirst=True)
+    sa.Enum(name='class_status').drop(bind, checkfirst=True)
+    sa.Enum(name='staff_employment_status').drop(bind, checkfirst=True)
+    sa.Enum(name='teacher_attendance_status').drop(bind, checkfirst=True)
+    sa.Enum(name='teacher_gender').drop(bind, checkfirst=True)
+    sa.Enum(name='employment_status').drop(bind, checkfirst=True)
+    sa.Enum(name='section_status').drop(bind, checkfirst=True)
+    sa.Enum(name='subject_type').drop(bind, checkfirst=True)
+    sa.Enum(name='subject_status').drop(bind, checkfirst=True)
+    sa.Enum(name='student_gender').drop(bind, checkfirst=True)
+    sa.Enum(name='student_status').drop(bind, checkfirst=True)
+    sa.Enum(name='timetable_day_of_week').drop(bind, checkfirst=True)
+    sa.Enum(name='leave_applicant_role').drop(bind, checkfirst=True)
+    sa.Enum(name='leave_type').drop(bind, checkfirst=True)
+    sa.Enum(name='leave_status').drop(bind, checkfirst=True)
+    sa.Enum(name='student_attendance_status').drop(bind, checkfirst=True)
+    sa.Enum(name='student_document_type').drop(bind, checkfirst=True)
+    sa.Enum(name='enrollment_status').drop(bind, checkfirst=True)
+    sa.Enum(name='guardian_relation').drop(bind, checkfirst=True)

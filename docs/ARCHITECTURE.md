@@ -63,9 +63,23 @@ Student documents (PDF, JPG, JPEG, PNG; 8 MB request cap) are validated by **ext
 
 Report cards, fee receipts, fee statements and salary slips are built with **ReportLab** (pure Python). It was chosen over HTML-to-PDF tools such as WeasyPrint, which need system libraries (Cairo/Pango) that are a frequent source of Windows installation failures. All PDFs are A4.
 
+## Notifications and email
+
+Two kinds of recipient: **staff users** get an in-app notification (sidebar bell and inbox), and **guardians** — who have no logins — get an **email**, with the notification row serving as the *record* of that email (`emailed_at`, `email_error`).
+
+How it runs (`app/services/notification_service.py`):
+
+1. The user's action is saved and committed first.
+2. A `notify_*` function then builds the recipient list (a family with several children appears once), writes the notification rows, and commits them.
+3. Only after that commit are guardian emails sent — in a background thread by default (`NOTIFICATIONS_EMAIL_SYNC=True` sends inline instead). Each message's outcome is written back: sent time, the error text, or "No email address on file".
+4. **Nothing here may break the action that triggered it.** Every `notify_*` function catches and logs its own errors, and mail problems are recorded rather than raised. A failed save never emails anyone, and a mail outage never stops a notice from being published.
+
+Admins see every attempt in the delivery log and can retry. Email subjects have newlines stripped (no header injection), and notification links are followed only if they are same-site paths.
+
+
 ## Security measures and known gaps
 
-**In place:** bcrypt hashing; CSRF protection on all forms (Flask-WTF `CSRFProtect`); HttpOnly + SameSite=Lax session cookies (`Secure` in production); signed, expiring, purpose-specific email tokens; open-redirect check; upload content validation; per-school query scoping; server-side role and ownership checks; audit trail; SQL injection avoided by using the ORM throughout; Jinja2 auto-escaping.
+**In place:** bcrypt hashing; CSRF protection on all forms (Flask-WTF `CSRFProtect`; every POST form carries a token, checked by `tools/check_csrf.py`); HttpOnly + SameSite=Lax session cookies (`Secure` in production); signed, expiring, purpose-specific email tokens; open-redirect check; upload content validation; per-school query scoping; server-side role and ownership checks; audit trail; SQL injection avoided by using the ORM throughout; Jinja2 auto-escaping.
 
 **Known gaps — fix before exposing the app publicly:**
 
@@ -75,6 +89,8 @@ Report cards, fee receipts, fee statements and salary slips are built with **Rep
 - **Teachers have broad read access** — any teacher can see all students, exams and results in the school, and mark attendance for any class (not only their own).
 - No custom error pages (default 403/404 pages), no password-strength rules beyond length, no two-factor authentication.
 - Audit entries store old/new values, but the audit-log screen does not display them yet.
+- **Guardian emails** go out one SMTP connection per message from a background daemon thread — fine for hundreds of recipients, slow for thousands; if the server restarts mid-mailing the unsent rows stay *pending* until an Admin presses **Retry**.
+- No unsubscribe or per-guardian notification preferences, and no automatic scheduled reminders (fee reminders are sent only when an Admin or Accountant presses the button).
 
 ## Time and money
 

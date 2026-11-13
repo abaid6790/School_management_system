@@ -25,6 +25,10 @@ These are constraints, not just application checks (names appear in [DATABASE_SC
 - A **salary record** has exactly one recipient (teacher or staff) matching its role; one record per recipient per month; no negative components.
 - **Payments** and **expenses** must be greater than zero; **marks** cannot be negative; **discounts** cannot be negative; passing marks cannot exceed maximum marks.
 - A **super admin** has no school; every other role must have one.
+- A **notice** for a class carries a class (and no other audience does); a section needs a class. An **event** can't end before it starts. **Homework** can't be due before it is assigned.
+- A **homework submission** is unique per (homework, student). A **PTM meeting** must end after it starts, with appointments of 5–120 minutes.
+- **PTM double-booking:** two *partial* unique indexes (teacher+slot and student+slot within a meeting) apply only to non-cancelled appointments, so a cancelled slot can be rebooked while the cancelled row stays as history.
+- A **notification** has exactly one recipient — a user or a guardian, never both, never neither.
 
 Rules that span several rows are enforced in the application only (a database `CHECK` cannot sum other rows): obtained marks ≤ the paper's maximum, total discounts ≤ the fee amount, a payment ≤ the remaining balance, no overlapping grade bands.
 
@@ -36,6 +40,7 @@ Rules that span several rows are enforced in the application only (a database `C
 | `3ccb96b401d8` | Phase 5: exams, exam subjects, marks, grade bands, report-card remarks |
 | `a5fb460d2ad5` | Phase 6: fee types, student fees, discounts, payments |
 | `bfb00a01e2b8` | Phase 7: expense categories, expenses, salary records |
+| `7cd218daa2d4` | Phase 8: notices, events, homework, homework submissions, PTM meetings and appointments, notifications |
 
 ```bat
 flask db upgrade                         :: apply all pending migrations
@@ -46,6 +51,8 @@ flask db downgrade                       :: step back one revision (destructive)
 ```
 
 Always **read the generated migration file** before applying it, and run `flask db upgrade` on a copy of real data first. `flask db migrate` requires the database to already be at `head`.
+
+Every migration's `downgrade()` also drops the PostgreSQL enum types its `upgrade()` created (Alembic does not do this on its own), so `flask db downgrade base` followed by `flask db upgrade` works. When you add a migration that creates enum types, copy that pattern.
 
 ## Resetting a development database
 

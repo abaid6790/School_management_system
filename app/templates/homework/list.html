@@ -1,0 +1,77 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Homework</h4>
+  <a href="{{ url_for('homework.new_homework') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Assign Homework</a>
+</div>
+
+<form method="GET" class="row g-2 mb-3 align-items-end">
+  {% if not is_admin %}
+  <div class="col-md-2">
+    <select name="scope" class="form-select form-select-sm">
+      <option value="mine" {{ "selected" if scope == "mine" else "" }}>My homework</option>
+      <option value="all" {{ "selected" if scope == "all" else "" }}>All teachers</option>
+    </select>
+  </div>
+  {% endif %}
+  <div class="col-md-2">
+    <select name="class_id" class="form-select form-select-sm">
+      <option value="">All classes</option>
+      {% for c in classes %}<option value="{{ c.id }}" {{ "selected" if c.id == class_id else "" }}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <select name="when" class="form-select form-select-sm">
+      <option value="upcoming" {{ "selected" if when == "upcoming" else "" }}>Due from today</option>
+      <option value="past" {{ "selected" if when == "past" else "" }}>Past due</option>
+      <option value="all" {{ "selected" if when == "all" else "" }}>Any date</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <select name="status" class="form-select form-select-sm">
+      <option value="active" {{ "selected" if status == "active" else "" }}>Active</option>
+      <option value="cancelled" {{ "selected" if status == "cancelled" else "" }}>Cancelled</option>
+      <option value="all" {{ "selected" if status == "all" else "" }}>Any status</option>
+    </select>
+  </div>
+  <div class="col-md-2"><input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Search titles"></div>
+  <div class="col-md-2"><button type="submit" class="btn btn-outline-secondary btn-sm w-100">Filter</button></div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Due</th><th>Class</th><th>Subject</th><th>Homework</th><th>Teacher</th><th style="min-width:150px">Handed in</th><th></th></tr></thead>
+      <tbody>
+        {% for h in items %}
+        {% set label, colour = due_state(h, today) %}
+        {% set p = progress[h.id] %}
+        <tr>
+          <td>{{ h.due_date.strftime("%d %b %Y") }}<br><span class="badge text-bg-{{ colour }}">{{ label }}</span></td>
+          <td>{{ h.school_class.name }}{% if h.section %} – {{ h.section.name }}{% else %} <span class="text-muted small">(all sections)</span>{% endif %}</td>
+          <td>{{ h.subject.name }}</td>
+          <td><a href="{{ url_for('homework.view_homework', homework_id=h.id) }}">{{ h.title }}</a></td>
+          <td>{{ h.teacher.name if h.teacher else "—" }}</td>
+          <td>
+            {% if p.expected %}
+              <div class="small">{{ p.done }} of {{ p.expected }}{% if p.percent is not none %} ({{ p.percent }}%){% endif %}</div>
+              <div class="progress" style="height:6px;"><div class="progress-bar bg-success" style="width: {{ p.percent or 0 }}%"></div></div>
+            {% else %}<span class="text-muted small">No students</span>{% endif %}
+          </td>
+          <td class="text-end"><a href="{{ url_for('homework.view_homework', homework_id=h.id) }}" class="btn btn-outline-primary btn-sm">Open</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No homework found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% if pagination.pages > 1 %}
+<nav class="mt-3"><ul class="pagination">
+  <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}"><a class="page-link" href="{{ url_for('homework.list_homework', page=pagination.prev_num, scope=scope, when=when, status=status, class_id=class_id, q=q) if pagination.has_prev else '#' }}">Previous</a></li>
+  <li class="page-item disabled"><span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}"><a class="page-link" href="{{ url_for('homework.list_homework', page=pagination.next_num, scope=scope, when=when, status=status, class_id=class_id, q=q) if pagination.has_next else '#' }}">Next</a></li>
+</ul></nav>
+{% endif %}
+{% endblock %}

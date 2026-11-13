@@ -1,0 +1,66 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Guardian email delivery</h4>
+  <form method="POST" action="{{ url_for('notifications.retry_failed') }}" onsubmit="return confirm('Retry every email that failed, got stuck, or was missing an address?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-repeat"></i> Retry failed, stuck or newly addressable</button>
+  </form>
+</div>
+<p class="text-muted small">Guardians have no logins, so each notification here is the record of an email: whether it was sent, failed, or had nowhere to go. Times are UTC.</p>
+<div class="row g-2 mb-3 text-center">
+  {% for key, label, colour in [("sent", "Sent", "success"), ("failed", "Failed", "danger"), ("no_email", "No email address", "warning"), ("pending", "Pending", "secondary")] %}
+  <div class="col"><a href="{{ url_for('notifications.delivery_log', status=key) }}" class="text-decoration-none">
+    <div class="card shadow-sm"><div class="card-body py-2"><div class="fs-5 text-{{ colour }}">{{ counts[key] }}</div><div class="small text-muted">{{ label }}</div></div></div></a></div>
+  {% endfor %}
+</div>
+<form method="GET" class="row g-2 mb-3">
+  <div class="col-md-3">
+    <select name="status" class="form-select form-select-sm">
+      <option value="">Any status</option>
+      {% for key, label in [("sent", "Sent"), ("failed", "Failed"), ("no_email", "No email address"), ("pending", "Pending")] %}<option value="{{ key }}" {{ "selected" if status == key else "" }}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select name="type" class="form-select form-select-sm">
+      <option value="">Any type</option>
+      {% for t in types %}<option value="{{ t.value }}" {{ "selected" if ntype == t.value else "" }}>{{ t.value.replace("_", " ").title() }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2"><button type="submit" class="btn btn-outline-secondary btn-sm w-100">Filter</button></div>
+</form>
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>When</th><th>Guardian</th><th>Email</th><th>Subject</th><th>Type</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for n in items %}
+        {% set st = delivery_status(n) %}
+        <tr>
+          <td>{{ n.created_at.strftime("%d %b %Y %H:%M") }}</td>
+          <td>{{ guardian_name(n.recipient_guardian) }}</td>
+          <td>{{ n.recipient_guardian.email or "—" }}</td>
+          <td>{{ n.title }}</td>
+          <td>{{ n.notification_type.value.replace("_", " ").title() }}</td>
+          <td>
+            {% if st == "sent" %}<span class="badge text-bg-success">Sent</span>
+            {% elif st == "no_email" %}<span class="badge text-bg-warning">No email address</span>
+            {% elif st == "failed" %}<span class="badge text-bg-danger" title="{{ n.email_error }}">Failed</span> <span class="small text-muted">{{ n.email_error | truncate(60) }}</span>
+            {% else %}<span class="badge text-bg-secondary">Pending</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">Nothing here yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% if pagination.pages > 1 %}
+<nav class="mt-3"><ul class="pagination">
+  <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}"><a class="page-link" href="{{ url_for('notifications.delivery_log', page=pagination.prev_num, status=status, type=ntype) if pagination.has_prev else '#' }}">Previous</a></li>
+  <li class="page-item disabled"><span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}"><a class="page-link" href="{{ url_for('notifications.delivery_log', page=pagination.next_num, status=status, type=ntype) if pagination.has_next else '#' }}">Next</a></li>
+</ul></nav>
+{% endif %}
+{% endblock %}

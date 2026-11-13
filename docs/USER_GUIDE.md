@@ -30,7 +30,7 @@ Do these roughly in order — later steps need the earlier ones to exist.
 - **Guardians → Add Guardian:** first search for an existing guardian by name or phone — siblings should share **one** guardian record — and link them with a relationship, or create a new guardian. *Remove* only unlinks; the guardian record stays.
 - **Documents:** upload PDF/JPG/PNG files (up to 8 MB) such as a birth certificate. Files are checked by content, not just by name. Admin can delete.
 
-**Parents menu** lists all guardians with search; open one to see all linked children.
+**Parents menu** lists all guardians with search; open one to see all linked children. **Give each guardian an email address** if you want them to receive notices, homework and reminders — guardians have no logins, so email is the only way they are reached.
 
 ## 3. Attendance
 
@@ -70,6 +70,7 @@ Safeguards: you cannot remove a subject from an exam, or lower its maximum below
 - **Status** is always calculated: *Paid*, *Partially Paid*, *Unpaid*, or *Overdue* (unpaid balance past its due date, based on the server's date).
 - **Fee Defaulters:** students with an outstanding balance (summed across all their fees), filterable by class, section and minimum days overdue (measured from their oldest outstanding due date).
 - **Fee Statement** on the student's fee page gives all fees, discounts, payments and balances, with a PDF.
+- **Fee reminders:** the defaulters report has a **Send fee reminders** button that emails guardians one message per family; see section 12.
 
 ## 8. Expenses, salaries and the financial summary
 
@@ -77,11 +78,60 @@ Safeguards: you cannot remove a subject from an exam, or lower its maximum below
 - **Salaries:** *Salaries → Generate Salary* for a teacher or staff member and a month (any date in the month; it's stored as the 1st). Net salary = basic + allowances + bonus − deductions. One record per person per month. A *pending* record can be edited; **Mark Paid** stamps today's date and locks it. **Download Slip** gives a PDF. Teachers can see their own history under **My Salary** on their profile.
 - **Reports → Financial Summary** (Admin/Accountant): income, expenses, salaries paid and net balance for a date range (default: this month), plus expenses by category. It is **cash-basis**: income counts fee payments *received* in the range, and salaries count only records *marked paid* in the range — not fees merely billed or salaries merely generated.
 
-## 9. Audit log
+## 9. Notices and the school calendar
+
+**Notices (Admin).** *Communication → Notices → New Notice.* Choose who it is for: everyone, all staff, teachers only, parents, students, or one class (optionally one section). Optionally set an expiry date (it stays visible through that day and can't be in the past) and pin it to the top. **Save as draft** or **Publish now**. Notice text is plain text; line breaks are kept.
+
+- Teachers, Accountants and Receptionists get a read-only **Notice Board** showing published, unexpired notices addressed to them (everyone and all-staff notices; teachers also see teachers-only ones).
+- A published notice can be **edited** (changes are audit-logged) and **archived**, and an archived one can be **re-published**. Only **drafts** can be deleted, so what the school communicated stays on record.
+- The first time a notice is published, the people it is addressed to are notified (see section 12). Re-publishing an archived notice does not notify anyone again.
+
+**Calendar (Admin adds, everyone reads).** *Communication → Events* shows a Monday-first month grid; multi-day events fill every day they cover and up to three show per day, with "+N more". The **List** view shows upcoming events with date and type filters. Admins add an event with the "+" on any day or **New Event**. Event types are holiday, exam, sports, cultural, meeting, trip and other. A **holiday** always marks the school as closed, and any other type can opt in; closed days are shaded, and the **student and teacher attendance pages warn** when you mark attendance on a closed date (you can still record it if classes were held).
+
+## 10. Homework
+
+*Communication → Homework → Assign Homework.* Pick the class, optionally one section (otherwise every section), the subject and the dates. **Teachers can assign only for subjects assigned to them**; an Admin can choose any subject and teacher (leave the teacher on "the subject's own teacher" to use the one set on the subject). Class, section and subject can't be changed afterwards — cancel and create a new one.
+
+- The homework page lists every **active student currently in that class/section**, in roll order. The owning teacher (or an Admin) records **Submitted, Late, Missing or Excused** and optional remarks, then **Save submissions**. Choosing "— not recorded —" clears an entry; a student you leave out of a request is never touched.
+- **Handed in %** is (Submitted + Late) ÷ (students − Excused), and is always calculated, never stored. A student who leaves the class or becomes inactive stops counting.
+- Every teacher can *view* all homework (the list defaults to "my upcoming"), but only the owner or an Admin can edit, cancel, delete or record submissions. **Cancel** keeps the record and can be undone (**Reinstate**); homework with recorded submissions **can't be deleted**.
+- When homework is assigned, the families of the students it is for are emailed (section 12).
+
+## 11. Parent–teacher meetings
+
+*Communication → Parent Meetings.*
+
+1. **Schedule (Admin).** Give the meeting a title, date, start and end time, minutes per appointment (5–120), a location, and optionally a class or section. The day is divided into equal slots; a partial slot at the end is dropped.
+2. **Book.** Parents have no logins, so staff book on their behalf. Choose the teacher, the student, a free time slot, and who is coming (the student's linked guardians). Admins and Receptionists can book for any teacher; a teacher can book only for themselves. The app names any clash ("Tea1 is already booked at 09:00–09:15 (with Stu One)", or the family already has an appointment at that time), and refuses the same teacher and student twice in one meeting.
+3. **Outcomes.** The teacher concerned (or an Admin) marks an appointment **Done** or **No-show**, can **Reopen** it, and keeps **private notes** that Receptionists and other teachers cannot see. A scheduled appointment can be **cancelled** by an Admin, a Receptionist or its teacher; the slot becomes free again and the cancelled booking stays in the history.
+4. **Edit, complete or cancel the meeting (Admin).** Once appointments are booked, the times, appointment length and class are locked (the title, date and location can still change). *Mark completed* reports how many appointments are still marked scheduled. *Cancel meeting* cancels the scheduled appointments but keeps ones that already took place.
+
+## 12. Notifications and email to guardians
+
+**Staff** see a **bell with an unread count** in the sidebar and a **Notifications** inbox (times shown in UTC). Clicking one marks it read and opens the related page; *Mark all as read* clears the list.
+
+**Guardians have no logins**, so they are reached by **email** — give each guardian record an email address. Every attempt is recorded per guardian, and *Notifications → Email delivery log* (Admin) shows each as **Sent**, **Failed** (with the reason), **No email address** or **Pending**.
+
+| What happens | Staff (in-app) | Families (email) |
+|---|---|---|
+| A notice is published for the first time | Staff it is addressed to | Everyone / parents / the chosen class's families |
+| An event is added | All staff | Only if the school is closed |
+| Homework is assigned | — | Families of the students in that class/section |
+| A meeting appointment is booked or cancelled | The teacher (unless they did it themselves) | The guardian chosen for that appointment |
+| A meeting is cancelled | The affected teachers | Guardians of its scheduled appointments |
+| A leave request is approved or rejected | The teacher who applied | The student's guardians (student leave) |
+
+A family with several children in the same mailing receives **one** email, not one per child. Emails are sent after the change is saved, in the background, so a mail problem never stops the action you took. **Retry** (on the delivery log) resends emails that failed, ones whose guardian has since been given an address, and ones stuck "pending" for over ten minutes (for example after a server restart); it never resends something already sent.
+
+**Fee reminders (Admin or Accountant).** On *Fees → Fee Defaulters*, **Send fee reminders** emails the guardians of the students currently listed (same class/section/overdue filters). Each family gets **one** email listing every child's outstanding balance. A guardian already reminded in the last 24 hours is skipped, so a double-click can't send twice. Reminders are sent only when you press the button — there are no automatic scheduled reminders yet.
+
+If email isn't configured, or `GUARDIAN_EMAILS_ENABLED=False`, the notifications are still recorded and the log says why nothing was sent (see [INSTALLATION.md](INSTALLATION.md#6-email-gmail-app-password)).
+
+## 13. Audit log
 
 *System → Audit Log* (Admin) lists who did what and when: registrations and logins, student/teacher/staff changes, attendance marking, marks entry, payments, discounts, salaries, and so on. (Stored old/new values are not shown on screen yet.)
 
-## 10. Everyday tips and common refusals
+## 14. Everyday tips and common refusals
 
 | If the app says… | It means… |
 |---|---|
@@ -93,6 +143,10 @@ Safeguards: you cannot remove a subject from an exam, or lower its maximum below
 | "A paid salary record can't be edited" | Paid records are locked to keep payroll history trustworthy. |
 | "Your account has been deactivated" | The person's employment status is not Active. |
 | Pages look unstyled | The browser can't reach the Bootstrap CDN (no internet). |
+| "Only drafts can be deleted" (notices) | Published notices are kept on record — archive them instead. |
+| "Submissions have been recorded … can't be deleted" (homework) | Cancel the homework instead; its records stay. |
+| "<Teacher> is already booked at …" / "family already has an appointment …" | Meeting slot clash — pick another slot. |
+| An email shows **No email address** or **Failed** in the delivery log | Add/fix the guardian's address, then use **Retry**. |
 
 ## Sidebar reference
 
@@ -118,9 +172,10 @@ Items marked *coming soon* appear in the sidebar so you can see the planned stru
 | Finance | Fees | available | Admin, Accountant, Receptionist |
 | Finance | Expenses | available | Admin, Accountant |
 | Finance | Salaries | available | Admin, Accountant |
-| Communication | Homework | *coming soon* (placeholder) | Admin, Teacher |
-| Communication | Notices | *coming soon* (placeholder) | Admin, Teacher, Accountant, Receptionist |
-| Communication | Events | *coming soon* (placeholder) | Admin, Teacher, Accountant, Receptionist |
+| Communication | Homework | available | Admin, Teacher |
+| Communication | Notices | available | Admin, Teacher, Accountant, Receptionist |
+| Communication | Events | available | Admin, Teacher, Accountant, Receptionist |
+| Communication | Parent Meetings | available | Admin, Teacher, Receptionist |
 | System | Reports | available | Admin, Accountant |
 | System | Audit Log | available | Admin, Super Admin |
 | System | Academic Sessions | available | Admin |

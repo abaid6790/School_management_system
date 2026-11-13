@@ -51,6 +51,7 @@
             {% if current_user.role.value == "admin" %}
             <form method="POST" action="{{ url_for('expenses.delete_expense', expense_id=e.id) }}" class="d-inline"
                   onsubmit="return confirm('Delete this expense?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
             </form>
             {% endif %}

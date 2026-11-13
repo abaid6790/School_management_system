@@ -49,6 +49,7 @@
             <a href="{{ url_for('exams.edit_exam_subject', exam_id=exam.id, exam_subject_id=es.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
             <form method="POST" action="{{ url_for('exams.delete_exam_subject', exam_id=exam.id, exam_subject_id=es.id) }}" class="d-inline"
                   onsubmit="return confirm('Remove {{ es.subject.name }} from this exam?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
             </form>
             {% endif %}
@@ -66,6 +67,7 @@
 <div class="modal fade" id="statusModal" tabindex="-1">
   <div class="modal-dialog">
     <form method="POST" action="{{ url_for('exams.change_status', exam_id=exam.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Change Status — {{ exam.name }}</h5>

@@ -1,0 +1,43 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-1">Edit Homework</h4>
+<p class="text-muted">{{ homework.school_class.name }}{% if homework.section %} – {{ homework.section.name }}{% endif %} · {{ homework.subject.name }}
+  <span class="small">(class, section and subject can't be changed — cancel and create a new one instead)</span></p>
+<div class="card shadow-sm" style="max-width: 680px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+        {% for e in form.title.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control", rows=5) }}
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.assigned_date.label(class="form-label") }}
+          {{ form.assigned_date(class="form-control" + (" is-invalid" if form.assigned_date.errors else ""), type="date") }}
+          {% for e in form.assigned_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.due_date.label(class="form-label") }}
+          {{ form.due_date(class="form-control" + (" is-invalid" if form.due_date.errors else ""), type="date") }}
+          {% for e in form.due_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      {% if form.teacher_id %}
+      <div class="mb-3">
+        {{ form.teacher_id.label(class="form-label") }}
+        {{ form.teacher_id(class="form-select" + (" is-invalid" if form.teacher_id.errors else "")) }}
+        {% for e in form.teacher_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      {% endif %}
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('homework.view_homework', homework_id=homework.id) }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

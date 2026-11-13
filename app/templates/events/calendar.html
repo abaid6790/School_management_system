@@ -1,0 +1,53 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <h4 class="mb-0">{{ month_name }}</h4>
+  <div class="d-flex gap-2">
+    <div class="btn-group btn-group-sm">
+      {% if prev_ym %}<a class="btn btn-outline-secondary" href="{{ url_for('events.calendar_view', year=prev_ym[0], month=prev_ym[1]) }}"><i class="bi bi-chevron-left"></i></a>{% endif %}
+      <a class="btn btn-outline-secondary" href="{{ url_for('events.calendar_view') }}">Today</a>
+      {% if next_ym %}<a class="btn btn-outline-secondary" href="{{ url_for('events.calendar_view', year=next_ym[0], month=next_ym[1]) }}"><i class="bi bi-chevron-right"></i></a>{% endif %}
+    </div>
+    <a href="{{ url_for('events.list_events') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ul"></i> List</a>
+    {% if is_admin %}<a href="{{ url_for('events.new_event') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Event</a>{% endif %}
+  </div>
+</div>
+
+<div class="mb-2 small">
+  {% for t, c in legend %}<span class="badge text-bg-{{ c }} me-1">{{ t.value.title() }}</span>{% endfor %}
+  <span class="text-muted ms-2">Shaded days: school closed</span>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-bordered mb-0">
+      <thead class="table-light">
+        <tr>{% for d in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] %}<th class="text-center">{{ d }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for week in weeks %}
+        <tr>
+          {% for day in week %}
+          {% set evs = by_day.get(day, []) %}
+          <td data-date="{{ day.isoformat() }}" {% if day in holiday_days %}data-holiday="1"{% endif %}
+              class="align-top {{ 'table-danger' if day in holiday_days else ('bg-light text-muted' if day.month != month else '') }}"
+              style="height: 108px; width: 14.28%; min-width: 110px;">
+            <div class="d-flex justify-content-between small">
+              <span class="{{ 'badge text-bg-primary' if day == today else '' }}">{{ day.day }}</span>
+              {% if is_admin %}<a href="{{ url_for('events.new_event', date=day.isoformat()) }}" class="text-decoration-none text-muted" title="Add an event on this day">+</a>{% endif %}
+            </div>
+            {% for e in evs[:3] %}
+            <a href="{{ url_for('events.view_event', event_id=e.id) }}" class="badge text-bg-{{ colors[e.event_type] }} d-block text-start text-truncate mt-1 text-decoration-none" title="{{ e.title }}">{{ e.title }}</a>
+            {% endfor %}
+            {% if evs | length > 3 %}
+            <a href="{{ url_for('events.list_events', start=day.isoformat(), end=day.isoformat()) }}" class="small">+{{ evs | length - 3 }} more</a>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

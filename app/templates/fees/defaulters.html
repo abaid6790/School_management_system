@@ -27,6 +27,19 @@
   </div>
 </form>
 
+{% if can_remind and reminder_preview %}
+<div class="alert alert-light border d-flex justify-content-between align-items-center py-2">
+  <div class="small">Email a fee reminder to the guardians of the {{ reminder_preview.students }} student(s) listed below:
+    <strong>{{ reminder_preview.guardians }}</strong> guardian(s), <strong>{{ reminder_preview.emailable }}</strong> with an email address.</div>
+  <form method="POST" action="{{ url_for('fees.send_fee_reminders') }}" onsubmit="return confirm('Email {{ reminder_preview.emailable }} guardian(s) now?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="class_id" value="{{ class_id or '' }}">
+    <input type="hidden" name="section_id" value="{{ section_id or '' }}">
+    <input type="hidden" name="min_days_overdue" value="{{ min_days_overdue or '' }}">
+    <button type="submit" class="btn btn-warning btn-sm"><i class="bi bi-envelope"></i> Send fee reminders</button>
+  </form>
+</div>
+{% endif %}
 <div class="card shadow-sm">
   <div class="table-responsive">
     <table class="table table-hover mb-0 align-middle">

@@ -1,0 +1,41 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Notifications</h4>
+  <div class="d-flex gap-2">
+    <div class="btn-group btn-group-sm">
+      <a href="{{ url_for('notifications.inbox') }}" class="btn btn-outline-secondary {{ '' if only_unread else 'active' }}">All</a>
+      <a href="{{ url_for('notifications.inbox', unread=1) }}" class="btn btn-outline-secondary {{ 'active' if only_unread else '' }}">Unread</a>
+    </div>
+    <form method="POST" action="{{ url_for('notifications.mark_all_read') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Mark all as read</button>
+    </form>
+    {% if current_user.role.value == "admin" %}
+    <a href="{{ url_for('notifications.delivery_log') }}" class="btn btn-outline-primary btn-sm">Email delivery log</a>
+    {% endif %}
+  </div>
+</div>
+<div class="list-group shadow-sm">
+  {% for n in items %}
+  <a href="{{ url_for('notifications.open_notification', notification_id=n.id) }}"
+     class="list-group-item list-group-item-action {{ '' if n.is_read else 'list-group-item-primary' }}">
+    <div class="d-flex justify-content-between">
+      <div><i class="bi bi-{{ icons.get(n.notification_type.value, 'bell') }} me-2"></i><strong>{{ n.title }}</strong>
+        {% if not n.is_read %}<span class="badge text-bg-primary ms-1">New</span>{% endif %}</div>
+      <small class="text-muted">{{ n.created_at.strftime("%d %b %Y, %H:%M") }} UTC</small>
+    </div>
+    <div class="small text-muted mt-1" style="white-space: pre-line;">{{ n.message | truncate(220) }}</div>
+  </a>
+  {% else %}
+  <div class="list-group-item text-center text-muted py-4">{{ "You have no unread notifications." if only_unread else "You have no notifications yet." }}</div>
+  {% endfor %}
+</div>
+{% if pagination.pages > 1 %}
+<nav class="mt-3"><ul class="pagination">
+  <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}"><a class="page-link" href="{{ url_for('notifications.inbox', page=pagination.prev_num, unread=1 if only_unread else None) if pagination.has_prev else '#' }}">Previous</a></li>
+  <li class="page-item disabled"><span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}"><a class="page-link" href="{{ url_for('notifications.inbox', page=pagination.next_num, unread=1 if only_unread else None) if pagination.has_next else '#' }}">Next</a></li>
+</ul></nav>
+{% endif %}
+{% endblock %}

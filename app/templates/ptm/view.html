@@ -1,0 +1,151 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h4 class="mb-1">{{ meeting.title }}</h4>
+    <div class="text-muted">
+      {{ meeting.meeting_date.strftime("%A, %d %b %Y") }} · {{ meeting.start_time.strftime("%H:%M") }}–{{ meeting.end_time.strftime("%H:%M") }}
+      · {{ meeting.slot_minutes }}-minute appointments{% if meeting.location %} · {{ meeting.location }}{% endif %}
+    </div>
+    <div class="mt-1">
+      <span class="badge text-bg-{{ 'primary' if meeting.status.value == 'scheduled' else ('success' if meeting.status.value == 'completed' else 'secondary') }}">{{ meeting.status.value.title() }}</span>
+      <span class="small text-muted">For: {{ scope }}</span>
+    </div>
+  </div>
+  {% if is_admin and meeting.status.value == "scheduled" %}
+  <div>
+    <a href="{{ url_for('ptm.edit_meeting', meeting_id=meeting.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <form method="POST" action="{{ url_for('ptm.complete_meeting', meeting_id=meeting.id) }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-success btn-sm">Mark completed</button>
+    </form>
+    <form method="POST" action="{{ url_for('ptm.cancel_meeting', meeting_id=meeting.id) }}" class="d-inline" onsubmit="return confirm('Cancel this meeting and all its scheduled appointments?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Cancel meeting</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% if meeting.description %}<div class="card shadow-sm mb-3"><div class="card-body" style="white-space: pre-wrap;">{{ meeting.description }}</div></div>{% endif %}
+
+{% if can_book %}
+<div class="card shadow-sm mb-4">
+  <div class="card-header">Book an appointment <span class="text-muted small">— {{ student_count }} student(s) can be booked</span></div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('ptm.book', meeting_id=meeting.id) }}" class="row g-2">
+      {{ form.hidden_tag() }}
+      <div class="col-md-3">
+        <label class="form-label small mb-0">Teacher</label>
+        <select name="teacher_id" id="teacher_id" class="form-select form-select-sm">
+          {% for value, label in form.teacher_id.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small mb-0">Student</label>
+        <select name="student_id" id="student_id" class="form-select form-select-sm">
+          <option value="">— choose a student —</option>
+          {% for value, label in form.student_id.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-0">Time slot</label>
+        <select name="slot" id="slot" class="form-select form-select-sm"></select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-0">Who is coming</label>
+        <select name="guardian_id" id="guardian_id" class="form-select form-select-sm"><option value="">—</option></select>
+      </div>
+      <div class="col-md-12">
+        <input type="text" name="notes" maxlength="1000" class="form-control form-control-sm" placeholder="Notes (optional) — e.g. what the parents want to discuss">
+      </div>
+      <div class="col-12"><button type="submit" class="btn btn-primary btn-sm">Book appointment</button></div>
+    </form>
+  </div>
+</div>
+<script>
+  const SLOTS = {{ slots | tojson }};
+  const busyTeacher = {{ busy_teacher | tojson }}, busyStudent = {{ busy_student | tojson }}, guardians = {{ guardians | tojson }};
+  const tSel = document.getElementById("teacher_id"), sSel = document.getElementById("student_id");
+  const slotSel = document.getElementById("slot"), gSel = document.getElementById("guardian_id");
+  function refresh() {
+    const bt = new Set(busyTeacher[tSel.value] || []), bs = new Set(busyStudent[sSel.value] || []);
+    slotSel.innerHTML = "";
+    SLOTS.forEach(([value, label]) => {
+      if (bt.has(value) || bs.has(value)) return;
+      const o = document.createElement("option"); o.value = value; o.textContent = label; slotSel.appendChild(o);
+    });
+    if (!slotSel.options.length) { const o = document.createElement("option"); o.value = ""; o.textContent = "No free slot"; slotSel.appendChild(o); }
+    gSel.innerHTML = '<option value="">—</option>';
+    (guardians[sSel.value] || []).forEach(([id, label]) => { const o = document.createElement("option"); o.value = id; o.textContent = label; gSel.appendChild(o); });
+  }
+  tSel.addEventListener("change", refresh); sSel.addEventListener("change", refresh); refresh();
+</script>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h5 class="mb-0">Schedule</h5>
+  <form method="GET" class="d-flex gap-2">
+    <select name="teacher_id" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">All teachers</option>
+      {% for tid, name in teacher_names.items() %}<option value="{{ tid }}" {{ "selected" if teacher_filter == tid else "" }}>{{ name }}</option>{% endfor %}
+    </select>
+  </form>
+</div>
+
+{% for tid, appts in by_teacher.items() %}
+<div class="card shadow-sm mb-3">
+  <div class="card-header">{{ teacher_names.get(tid, "Teacher") }} <span class="text-muted small">({{ appts | length }})</span></div>
+  <div class="table-responsive">
+    <table class="table mb-0 align-middle">
+      <thead class="table-light"><tr><th style="width:130px">Time</th><th>Student</th><th>Guardian</th><th>Status</th><th>Notes</th><th></th></tr></thead>
+      <tbody>
+        {% for a in appts %}
+        <tr>
+          <td>{{ slot_label(meeting, a.slot_start) }}</td>
+          <td>{{ a.student.name }}{% if a.student.current_class %} <span class="text-muted small">{{ a.student.current_class.name }}</span>{% endif %}</td>
+          <td>{{ guardian_label(a.guardian) if a.guardian else "—" }}</td>
+          <td><span class="badge text-bg-{{ status_colors[a.status] }}">{{ a.status.value.replace("_", " ").title() }}</span></td>
+          <td style="min-width:200px;">
+            {% if can_record(current_user, a) %}
+            <form method="POST" action="{{ url_for('ptm.update_appointment', appointment_id=a.id) }}" class="d-flex gap-1">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="notes">
+              <input type="text" name="notes" value="{{ a.notes or '' }}" maxlength="1000" class="form-control form-control-sm" placeholder="Notes">
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Save</button>
+            </form>
+            {% else %}<span class="text-muted small">—</span>{% endif %}
+          </td>
+          <td class="text-end text-nowrap">
+            {% if a.status.value == "scheduled" %}
+              {% if can_record(current_user, a) %}
+              <form method="POST" action="{{ url_for('ptm.update_appointment', appointment_id=a.id) }}" class="d-inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="complete"><button class="btn btn-outline-success btn-sm">Done</button></form>
+              <form method="POST" action="{{ url_for('ptm.update_appointment', appointment_id=a.id) }}" class="d-inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="no_show"><button class="btn btn-outline-warning btn-sm">No-show</button></form>
+              {% endif %}
+              {% if can_cancel(current_user, a) %}
+              <form method="POST" action="{{ url_for('ptm.update_appointment', appointment_id=a.id) }}" class="d-inline" onsubmit="return confirm('Cancel this appointment?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="cancel"><button class="btn btn-outline-danger btn-sm">Cancel</button></form>
+              {% endif %}
+            {% elif can_record(current_user, a) %}
+              <form method="POST" action="{{ url_for('ptm.update_appointment', appointment_id=a.id) }}" class="d-inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reopen"><button class="btn btn-outline-secondary btn-sm">Reopen</button></form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center text-muted py-4">No appointments booked yet.</div>
+{% endfor %}
+
+{% if cancelled %}
+<details class="mt-3"><summary class="text-muted">Cancelled appointments ({{ cancelled | length }})</summary>
+  <table class="table table-sm mt-2">
+    <tbody>
+      {% for a in cancelled %}<tr class="text-muted"><td>{{ slot_label(meeting, a.slot_start) }}</td><td>{{ a.student.name }}</td><td>{{ teacher_names.get(a.teacher_id, "Teacher") }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</details>
+{% endif %}
+<a href="{{ url_for('ptm.list_meetings') }}" class="btn btn-outline-secondary btn-sm mt-3">Back to meetings</a>
+{% endblock %}

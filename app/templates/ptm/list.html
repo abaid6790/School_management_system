@@ -1,0 +1,41 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Parent–Teacher Meetings</h4>
+  {% if is_admin %}<a href="{{ url_for('ptm.new_meeting') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Schedule a Meeting</a>{% endif %}
+</div>
+<div class="btn-group btn-group-sm mb-3">
+  {% for key, label in [("upcoming", "Upcoming"), ("past", "Past"), ("all", "All")] %}
+  <a href="{{ url_for('ptm.list_meetings', when=key) }}" class="btn btn-outline-secondary {{ 'active' if when == key else '' }}">{{ label }}</a>
+  {% endfor %}
+</div>
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light"><tr><th>Date</th><th>Time</th><th>Meeting</th><th>For</th><th>Appointments</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for m in meetings %}
+        <tr>
+          <td>{{ m.meeting_date.strftime("%d %b %Y") }}</td>
+          <td>{{ m.start_time.strftime("%H:%M") }}–{{ m.end_time.strftime("%H:%M") }}</td>
+          <td><a href="{{ url_for('ptm.view_meeting', meeting_id=m.id) }}">{{ m.title }}</a></td>
+          <td>{{ scope_label(m) }}</td>
+          <td>{{ counts.get(m.id, 0) }}</td>
+          <td><span class="badge text-bg-{{ 'primary' if m.status.value == 'scheduled' else ('success' if m.status.value == 'completed' else 'secondary') }}">{{ m.status.value.title() }}</span></td>
+          <td class="text-end"><a href="{{ url_for('ptm.view_meeting', meeting_id=m.id) }}" class="btn btn-outline-primary btn-sm">Open</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No meetings found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% if pagination.pages > 1 %}
+<nav class="mt-3"><ul class="pagination">
+  <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}"><a class="page-link" href="{{ url_for('ptm.list_meetings', page=pagination.prev_num, when=when) if pagination.has_prev else '#' }}">Previous</a></li>
+  <li class="page-item disabled"><span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}"><a class="page-link" href="{{ url_for('ptm.list_meetings', page=pagination.next_num, when=when) if pagination.has_next else '#' }}">Next</a></li>
+</ul></nav>
+{% endif %}
+{% endblock %}

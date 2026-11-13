@@ -57,6 +57,20 @@ Drivers, cleaners, security guards and other staff who don't need the system get
 | **Salaries** — list, generate, view, edit (pending), mark paid, slip PDF | ✔ | — | ✔ | — |
 | Salaries — own salary history, view and download own slip | — | own | — | — |
 | **Financial summary** report | ✔ | — | ✔ | — |
+| **Notices** — read the notice board (published, unexpired notices addressed to staff) | ✔ | ✔ | ✔ | ✔ |
+| Notices — create, edit, publish, archive, delete drafts; see every notice | ✔ | — | — | — |
+| **Events / calendar** — view the calendar and the list | ✔ | ✔ | ✔ | ✔ |
+| Events — add, edit, delete | ✔ | — | — | — |
+| **Homework** — view the list and any homework | ✔ | ✔ | — | — |
+| Homework — assign | ✔ any subject | ✔ own subjects | — | — |
+| Homework — edit, cancel, reinstate, delete, record submissions | ✔ | own | — | — |
+| **Parent–teacher meetings** — view meetings and the schedule | ✔ | ✔ | — | ✔ |
+| Meetings — schedule, edit, complete, cancel | ✔ | — | — | — |
+| Appointments — book or cancel | ✔ any teacher | ✔ own | — | ✔ any teacher |
+| Appointments — mark done / no-show / reopen, write and read notes | ✔ | own | — | — |
+| **Notifications** — your own inbox | ✔ | ✔ | ✔ | ✔ |
+| Guardian email delivery log and retry | ✔ | — | — | — |
+| Send fee reminders to guardians (defaulters report) | ✔ | — | ✔ | — |
 | **Audit log** | ✔ (own school) | — | — | — |
 | Dashboard | ✔ | ✔ | ✔ | ✔ |
 
@@ -70,9 +84,15 @@ The **Super Admin** can open the dashboard and the audit log (across all schools
 - **Deactivating a person blocks login.** Setting a teacher's or staff member's employment status to anything other than *Active* (resigned, terminated, on leave) also disables their login immediately.
 - **Account creation never exposes passwords.** When an Admin adds a teacher or a login-enabled staff member, the system emails them a one-time-style setup link (valid 24 hours) so they choose their own password.
 - **Money screens are separate from academic screens.** Teachers cannot see fees, expenses, or other people's salaries; Receptionists can collect fees but cannot grant discounts.
+- **Notices are visible only to their audience.** A notice not addressed to you returns "not found" rather than "forbidden", so its existence isn't revealed. Notices for parents, students or a class are visible to the Admin only (families get them by email).
+- **Meeting notes are private.** Only the Admin and the teacher concerned can read or write an appointment's notes; Receptionists book and cancel slots but never see the notes.
+- **Homework is readable by every teacher but changeable only by its owner** (or an Admin). Class, section and subject are fixed once it exists.
+- **Guardians and students have no logins.** They are reached by email only; every email attempt is recorded in the delivery log.
 
 ## Known simplifications
 
 - Teachers are not limited to "their" classes: they can view every student, exam and result in the school and can mark attendance for any class. Tightening this is on the [roadmap](ROADMAP.md).
 - Accountants and Receptionists have no academic access beyond what's listed (for example, a Receptionist can open a student's profile and exam-results page but not the exams module).
 - Only one level of administration exists inside a school: there is no "Principal" or "Vice-Principal" role distinct from Admin.
+- Teachers cannot post notices (only the Admin can); this avoids having to decide which classes a teacher may address, which the app does not track.
+- Notices addressed to *students* currently reach no one — students have no accounts or email addresses.

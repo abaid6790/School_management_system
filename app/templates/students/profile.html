@@ -87,6 +87,7 @@
                 {% if current_user.role.value in ("admin", "receptionist") %}
                 <form method="POST" action="{{ url_for('students.unlink_guardian', student_id=student.id, link_id=link.id) }}"
                       onsubmit="return confirm('Remove this guardian from {{ student.name }}?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
                 </form>
                 {% endif %}
@@ -115,6 +116,7 @@
                 {% if current_user.role.value == "admin" %}
                 <form method="POST" action="{{ url_for('students.delete_document', student_id=student.id, doc_id=doc.id) }}"
                       onsubmit="return confirm('Delete {{ doc.original_filename }}?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
                 </form>
                 {% endif %}
@@ -127,6 +129,7 @@
 
         {% if current_user.role.value in ("admin", "receptionist") %}
         <form method="POST" action="{{ url_for('students.upload_document', student_id=student.id) }}" enctype="multipart/form-data" class="d-flex gap-2">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <select name="document_type" class="form-select form-select-sm" style="max-width: 220px;">
             {% for dt in doc_types %}
               <option value="{{ dt.value }}">{{ dt.value.replace('_', ' ').title() }}</option>
@@ -178,6 +181,7 @@
 <div class="modal fade" id="statusModal" tabindex="-1">
   <div class="modal-dialog">
     <form method="POST" action="{{ url_for('students.change_status', student_id=student.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Change Status — {{ student.name }}</h5>

@@ -1,0 +1,81 @@
+{% extends "shell.html" %}
+{% block content %}
+<h4 class="mb-3">{{ title }}</h4>
+<div class="card shadow-sm" style="max-width: 640px;">
+  <div class="card-body">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+        {% for e in form.title.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.body.label(class="form-label") }}
+        {{ form.body(class="form-control" + (" is-invalid" if form.body.errors else ""), rows=7) }}
+        {% for e in form.body.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        <div class="form-text">Plain text. Line breaks are kept.</div>
+      </div>
+      <div class="mb-3">
+        {{ form.audience.label(class="form-label") }}
+        {{ form.audience(class="form-select" + (" is-invalid" if form.audience.errors else "")) }}
+        {% for e in form.audience.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div id="class-target" class="row" style="display:none;">
+        <div class="col-md-6 mb-3">
+          {{ form.class_id.label(class="form-label") }}
+          {{ form.class_id(class="form-select" + (" is-invalid" if form.class_id.errors else "")) }}
+          {% for e in form.class_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.section_id.label(class="form-label") }}
+          {{ form.section_id(class="form-select" + (" is-invalid" if form.section_id.errors else "")) }}
+          {% for e in form.section_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.expires_on.label(class="form-label") }}
+          {{ form.expires_on(class="form-control" + (" is-invalid" if form.expires_on.errors else ""), type="date") }}
+          {% for e in form.expires_on.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6 mb-3 d-flex align-items-end">
+          <div class="form-check">{{ form.is_pinned(class="form-check-input") }} {{ form.is_pinned.label(class="form-check-label") }}</div>
+        </div>
+      </div>
+
+      {% if notice is none or notice.status.value == "draft" %}
+      <button type="submit" name="action" value="draft" class="btn btn-outline-primary">{{ "Save as draft" if notice is none else "Save draft" }}</button>
+      <button type="submit" name="action" value="publish" class="btn btn-primary">{{ "Publish now" if notice is none else "Save & publish" }}</button>
+      {% else %}
+      <button type="submit" class="btn btn-primary">Save changes</button>
+      {% endif %}
+      <a href="{{ url_for('notices.view_notice', notice_id=notice.id) if notice else url_for('notices.list_notices') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  const sectionsByClass = {{ sections_by_class | tojson }};
+  const audienceSel = document.getElementById("audience");
+  const classSel = document.getElementById("class_id");
+  const sectionSel = document.getElementById("section_id");
+  const classBox = document.getElementById("class-target");
+  const currentSection = "{{ form.section_id.data or 0 }}";
+
+  function refreshSections(keep) {
+    const secs = sectionsByClass[classSel.value] || [];
+    sectionSel.innerHTML = '<option value="0">All sections</option>';
+    secs.forEach(([id, name]) => {
+      const o = document.createElement("option");
+      o.value = id; o.textContent = name;
+      if (keep && String(id) === currentSection) o.selected = true;
+      sectionSel.appendChild(o);
+    });
+  }
+  function refreshAudience() { classBox.style.display = audienceSel.value === "class" ? "flex" : "none"; }
+  audienceSel.addEventListener("change", refreshAudience);
+  classSel.addEventListener("change", () => refreshSections(false));
+  refreshAudience(); refreshSections(true);
+</script>
+{% endblock %}

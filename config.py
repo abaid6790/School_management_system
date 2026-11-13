@@ -39,6 +39,11 @@ class Config:
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
 
+    # Notifications. Guardian emails are sent in a background thread so a big mailing doesn't
+    # block the request; set NOTIFICATIONS_EMAIL_SYNC=True to send inside the request instead.
+    NOTIFICATIONS_EMAIL_SYNC = os.environ.get("NOTIFICATIONS_EMAIL_SYNC", "False") == "True"
+    GUARDIAN_EMAILS_ENABLED = os.environ.get("GUARDIAN_EMAILS_ENABLED", "True") == "True"
+
     # --- Security ---
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"

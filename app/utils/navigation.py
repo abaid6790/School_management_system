@@ -69,10 +69,12 @@ NAV_SECTIONS = [
     {
         "heading": "Communication",
         "items": [
-            {"label": "Homework", "endpoint": None, "icon": "journal-text",
+            {"label": "Homework", "endpoint": "homework.list_homework", "icon": "journal-text",
              "roles": [UserRole.ADMIN, UserRole.TEACHER]},
-            {"label": "Notices", "endpoint": None, "icon": "megaphone", "roles": ALL_STAFF},
-            {"label": "Events", "endpoint": None, "icon": "calendar-event", "roles": ALL_STAFF},
+            {"label": "Notices", "endpoint": "notices.list_notices", "icon": "megaphone", "roles": ALL_STAFF},
+            {"label": "Events", "endpoint": "events.calendar_view", "icon": "calendar-event", "roles": ALL_STAFF},
+            {"label": "Parent Meetings", "endpoint": "ptm.list_meetings", "icon": "people",
+             "roles": [UserRole.ADMIN, UserRole.TEACHER, UserRole.RECEPTIONIST]},
         ],
     },
     {

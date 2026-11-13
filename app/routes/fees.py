@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app.extensions import db
 from app.models import FeeType, StudentFee, Student, SchoolClass, Section, AcademicSession
@@ -9,6 +9,7 @@ from app.utils.decorators import role_required
 from app.utils.tenant import current_school_id
 from app.services.audit_service import log_action
 from app.services.fee_service import compute_defaulters
+from app.services import notification_service as ns
 
 fees_bp = Blueprint("fees", __name__, url_prefix="/fees")
 
@@ -176,4 +177,36 @@ def defaulters():
     return render_template(
         "fees/defaulters.html", results=results, classes=classes, sections_by_class=sections_by_class,
         class_id=class_id, section_id=section_id, min_days_overdue=min_days_overdue,
+        reminder_preview=ns.fee_reminder_preview(results) if results else None,
+        can_remind=current_user.role in (UserRole.ADMIN, UserRole.ACCOUNTANT),
     )
+
+
+@fees_bp.route("/defaulters/send-reminders", methods=["POST"])
+@login_required
+@role_required(UserRole.ADMIN, UserRole.ACCOUNTANT)
+def send_fee_reminders():
+    """Emails guardians of the students currently shown on the defaulters report (same filters).
+    One email per guardian listing all their children's balances; guardians already reminded in
+    the last 24 hours are skipped, so a double-click can't send twice."""
+    school_id = current_school_id()
+    class_id = request.form.get("class_id", type=int)
+    section_id = request.form.get("section_id", type=int)
+    min_days = request.form.get("min_days_overdue", type=int)
+    results = compute_defaulters(school_id, class_id=class_id, section_id=section_id)
+    if min_days:
+        results = [r for r in results if r["days_overdue"] >= min_days]
+    back = redirect(url_for("fees.defaulters", class_id=class_id, section_id=section_id, min_days_overdue=min_days))
+    if not results:
+        flash("No outstanding balances match these filters, so nothing was sent.", "info")
+        return back
+    summary = ns.notify_fee_reminders(school_id, results)
+    skipped = (summary or {}).get("skipped_recent", 0)
+    log_action("fees.reminders_sent", "notifications", None,
+               new_value={"students": len(results), "guardians": (summary or {}).get("guardians", 0), "skipped_recent": skipped})
+    db.session.commit()
+    message = ns.describe(summary)
+    if skipped:
+        message += f" {skipped} guardian(s) were skipped because they were already reminded in the last 24 hours."
+    flash(message, "success" if summary else "danger")
+    return back

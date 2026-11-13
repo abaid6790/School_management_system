@@ -11,6 +11,7 @@ from app.utils.decorators import role_required
 from app.utils.tenant import current_school_id
 from app.services.audit_service import log_action
 from app.services.leave_service import sync_attendance_for_leave
+from app.services import notification_service as ns
 
 leave_bp = Blueprint("leave", __name__, url_prefix="/leave")
 
@@ -131,7 +132,7 @@ def decide_leave(leave_id):
     log_action("leave.decided", "leave_requests", leave.id, new_value={"status": leave.status.value})
     db.session.commit()
 
-    flash(f"Leave request {leave.status.value}.", "success")
+    flash(f"Leave request {leave.status.value}. {ns.note(ns.notify_leave_decided(leave))}".strip(), "success")
     return redirect(url_for("leave.view_leave", leave_id=leave.id))
 
 

@@ -128,3 +128,9 @@ def downgrade():
 
     op.drop_table('fee_types')
     # ### end Alembic commands ###
+
+    # PostgreSQL keeps ENUM types after their tables are dropped; remove them so this migration can be re-applied.
+    bind = op.get_bind()
+    sa.Enum(name='fee_type_status').drop(bind, checkfirst=True)
+    sa.Enum(name='discount_type').drop(bind, checkfirst=True)
+    sa.Enum(name='payment_method').drop(bind, checkfirst=True)

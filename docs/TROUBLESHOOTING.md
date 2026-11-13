@@ -36,6 +36,10 @@ PostgreSQL isn't running, or `localhost:5432` is wrong. Start the *postgresql* s
 **Migrations: "Can't locate revision identified by '…'"**
 The database's recorded revision isn't in your `migrations/versions/` folder — typically from mixing files from different project copies. On a **development** database with nothing to keep, drop and recreate it, then `flask db upgrade`. On real data, stop and get help; don't edit the `alembic_version` table casually.
 
+**`type "…" already exists` when re-running `flask db upgrade` after a downgrade**
+Older migrations did not drop PostgreSQL enum types on downgrade. The current migrations do. On a development database, drop and recreate it ([DATABASE.md](DATABASE.md#resetting-a-development-database)) and upgrade again.
+
+
 ## Email
 
 **"Account created, but the verification email couldn't be sent"** (or a similar warning for teachers)
@@ -69,6 +73,17 @@ Meanwhile you can verify a user or set a password from the shell: [INSTALLATION.
 
 **Port 5000 is already in use** — set `APP_PORT=5001` in `.env` and restart.
 
+**"400 Bad Request: The CSRF token is missing" when clicking a button (delete, archive, mark paid, …)**
+That form had no CSRF token. This affected 23 forms in Phases 0–7; it is fixed in the Phase 8 package, and `csrf_hotfix.py` applies the fix to a Phase 7 copy (run `python csrf_hotfix.py` in the project folder, restart, hard-refresh). Developers: `python tools/check_csrf.py` lists any form still missing a token.
+
+**A guardian says they never got an email**
+Open *Notifications → Email delivery log* (Admin) and find the guardian. **No email address** → add one to the guardian record, then **Retry**. **Failed** → the reason is shown (typically SMTP settings or a bad address); fix it, then **Retry**. **Pending** → the mailing is still running, or the server restarted; **Retry** picks up anything pending for over ten minutes. If *nothing* was recorded as sent and the reason says email isn't configured or switched off, check `MAIL_USERNAME`/`MAIL_PASSWORD` and `GUARDIAN_EMAILS_ENABLED`.
+
+**Notices to "students" reach nobody** — students have no accounts or email addresses yet; address the notice to their parents or to the class instead.
+
+**The bell count looks out of date** — it is calculated when each page loads; reload the page.
+
+
 ## Why was my action refused?
 
 | Message (shortened) | Rule |
@@ -86,6 +101,11 @@ Meanwhile you can verify a user or set a password from the shell: [INSTALLATION.
 | A salary record already exists for this person for this month | One per person per month |
 | A paid salary record can't be edited | Paid records are locked |
 | Overlaps with existing grade band | Grade ranges must not overlap |
+| Only drafts can be deleted / Only a published notice can be archived | Published notices are kept on record; archive instead |
+| Submissions have been recorded for this homework, so it can't be deleted | Cancel it instead; records are kept |
+| X is already booked at … / X's family already has an appointment … | Parent–teacher meeting slot clash |
+| Times, appointment length and class can't change while appointments are booked | Cancel those appointments first |
+| X guardian(s) were skipped because they were already reminded in the last 24 hours | Fee-reminder double-send guard |
 
 ## Still stuck?
 

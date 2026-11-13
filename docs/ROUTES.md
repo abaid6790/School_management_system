@@ -2,7 +2,7 @@
 
 > **Generated from the route decorators** (`app/routes/`) — do not edit by hand. Regenerate with `python tools/generate_docs.py`. Roles shown are those allowed by `@role_required`; some routes add *ownership* rules on top (for example a teacher may only open their own salary record) — see [ROLES_AND_PERMISSIONS.md](ROLES_AND_PERMISSIONS.md).
 
-**117 routes**, plus `GET /health` (public, defined in `app/__init__.py`).
+**152 routes**, plus `GET /health` (public, defined in `app/__init__.py`).
 
 | Module | URL | Methods | Roles allowed |
 |---|---|---|---|
@@ -34,6 +34,12 @@
 | auth | `/auth/forgot-password` | GET/POST | public (no login) |
 | auth | `/auth/reset-password/<token>` | GET/POST | public (no login) |
 | dashboard | `/` | GET | any logged-in user |
+| events | `/events/` | GET | ADMIN, TEACHER, ACCOUNTANT, RECEPTIONIST |
+| events | `/events/list` | GET | ADMIN, TEACHER, ACCOUNTANT, RECEPTIONIST |
+| events | `/events/new` | GET/POST | ADMIN |
+| events | `/events/<int:event_id>` | GET | ADMIN, TEACHER, ACCOUNTANT, RECEPTIONIST |
+| events | `/events/<int:event_id>/edit` | GET/POST | ADMIN |
+| events | `/events/<int:event_id>/delete` | POST | ADMIN |
 | exams | `/exams/` | GET | ADMIN, TEACHER |
 | exams | `/exams/new` | GET/POST | ADMIN |
 | exams | `/exams/<int:exam_id>` | GET | ADMIN, TEACHER |
@@ -67,15 +73,44 @@
 | fees | `/fees/types/<int:fee_type_id>/toggle-status` | POST | ADMIN |
 | fees | `/fees/assign-bulk` | GET/POST | ADMIN, ACCOUNTANT |
 | fees | `/fees/defaulters` | GET | ADMIN, ACCOUNTANT, RECEPTIONIST |
+| fees | `/fees/defaulters/send-reminders` | POST | ADMIN, ACCOUNTANT |
 | guardians | `/guardians/` | GET | ADMIN, RECEPTIONIST |
 | guardians | `/guardians/new` | GET/POST | ADMIN, RECEPTIONIST |
 | guardians | `/guardians/<int:guardian_id>` | GET | ADMIN, RECEPTIONIST |
 | guardians | `/guardians/<int:guardian_id>/edit` | GET/POST | ADMIN, RECEPTIONIST |
+| homework | `/homework/` | GET | ADMIN, TEACHER |
+| homework | `/homework/new` | GET/POST | ADMIN, TEACHER |
+| homework | `/homework/<int:homework_id>` | GET | ADMIN, TEACHER |
+| homework | `/homework/<int:homework_id>/edit` | GET/POST | ADMIN, TEACHER |
+| homework | `/homework/<int:homework_id>/submissions` | POST | ADMIN, TEACHER |
+| homework | `/homework/<int:homework_id>/cancel` | POST | ADMIN, TEACHER |
+| homework | `/homework/<int:homework_id>/reinstate` | POST | ADMIN, TEACHER |
+| homework | `/homework/<int:homework_id>/delete` | POST | ADMIN, TEACHER |
 | leave | `/leave/` | GET | ADMIN, TEACHER, RECEPTIONIST |
 | leave | `/leave/new` | GET/POST | ADMIN, RECEPTIONIST, TEACHER |
 | leave | `/leave/<int:leave_id>` | GET | ADMIN, TEACHER, RECEPTIONIST |
 | leave | `/leave/<int:leave_id>/decide` | POST | ADMIN |
 | leave | `/leave/<int:leave_id>/cancel` | POST | ADMIN, TEACHER |
+| notices | `/notices/` | GET | ADMIN, TEACHER, ACCOUNTANT, RECEPTIONIST |
+| notices | `/notices/new` | GET/POST | ADMIN |
+| notices | `/notices/<int:notice_id>` | GET | ADMIN, TEACHER, ACCOUNTANT, RECEPTIONIST |
+| notices | `/notices/<int:notice_id>/edit` | GET/POST | ADMIN |
+| notices | `/notices/<int:notice_id>/publish` | POST | ADMIN |
+| notices | `/notices/<int:notice_id>/archive` | POST | ADMIN |
+| notices | `/notices/<int:notice_id>/delete` | POST | ADMIN |
+| notifications | `/notifications/` | GET | any logged-in user |
+| notifications | `/notifications/<int:notification_id>/go` | GET | any logged-in user |
+| notifications | `/notifications/mark-all-read` | POST | any logged-in user |
+| notifications | `/notifications/delivery` | GET | ADMIN |
+| notifications | `/notifications/delivery/retry` | POST | ADMIN |
+| ptm | `/ptm/` | GET | ADMIN, TEACHER, RECEPTIONIST |
+| ptm | `/ptm/new` | GET/POST | ADMIN |
+| ptm | `/ptm/<int:meeting_id>/edit` | GET/POST | ADMIN |
+| ptm | `/ptm/<int:meeting_id>/complete` | POST | ADMIN |
+| ptm | `/ptm/<int:meeting_id>/cancel` | POST | ADMIN |
+| ptm | `/ptm/<int:meeting_id>` | GET | ADMIN, TEACHER, RECEPTIONIST |
+| ptm | `/ptm/<int:meeting_id>/book` | POST | ADMIN, TEACHER, RECEPTIONIST |
+| ptm | `/ptm/appointment/<int:appointment_id>/update` | POST | ADMIN, TEACHER, RECEPTIONIST |
 | reports | `/reports/financial-summary` | GET | ADMIN, ACCOUNTANT |
 | salaries | `/salaries/` | GET | ADMIN, ACCOUNTANT |
 | salaries | `/salaries/new` | GET/POST | ADMIN, ACCOUNTANT |

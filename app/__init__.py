@@ -54,6 +54,11 @@ def create_app(config_name=None):
     from app.routes.expenses import expenses_bp
     from app.routes.salaries import salaries_bp
     from app.routes.reports import reports_bp
+    from app.routes.notices import notices_bp
+    from app.routes.events import events_bp
+    from app.routes.homework import homework_bp
+    from app.routes.ptm import ptm_bp
+    from app.routes.notifications import notifications_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(dashboard_bp)
@@ -72,6 +77,30 @@ def create_app(config_name=None):
     app.register_blueprint(expenses_bp)
     app.register_blueprint(salaries_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(notices_bp)
+    app.register_blueprint(events_bp)
+    app.register_blueprint(homework_bp)
+    app.register_blueprint(ptm_bp)
+    app.register_blueprint(notifications_bp)
+
+    # Lets templates ask "is the school closed on this date?" (used by the attendance screens).
+    from app.services.event_service import holidays_on as _holidays_on
+
+    @app.context_processor
+    def inject_holiday_lookup():
+        def holidays_on(day):
+            if not getattr(current_user, "is_authenticated", False) or current_user.school_id is None:
+                return []
+            return _holidays_on(current_user.school_id, day)
+        return {"holidays_on": holidays_on}
+
+    # Unread-notification count for the sidebar bell (one indexed COUNT per page view).
+    @app.context_processor
+    def inject_unread_count():
+        if not getattr(current_user, "is_authenticated", False) or current_user.school_id is None:
+            return {}
+        from app.models import Notification
+        return {"unread_count": Notification.query.filter_by(recipient_user_id=current_user.id, is_read=False).count()}
 
     # Temporary health-check — useful during setup, harmless to keep long-term.
     health_bp = Blueprint("health", __name__)
