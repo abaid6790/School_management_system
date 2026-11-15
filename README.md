@@ -1,104 +1,406 @@
-# School Management System (SMS)
+# 🏫 School Management System (SMS)
 
-A multi-tenant web application for running a school's day-to-day operations — admissions, attendance, timetables, exams and report cards, student fees, and the school's own payroll and expenses — built with **Flask** and **PostgreSQL**.
+**A complete school operations platform — from student admissions to academic records, fees, payroll, and communication.**
 
-Every number on every screen is calculated from real database records. The application ships with **no demo data**: a newly registered school starts empty.
+School Management System (SMS) is a multi-tenant web application built with **Python, Flask, and PostgreSQL** to manage the day-to-day operations of multiple schools through one application.
 
-> **Status — Phases 0–8 of 12 complete.** The core academic, financial and communication workflow works end to end. Several planned modules (dashboard statistics, promotion and transfers, ID cards, import/export, in-app backups, settings screens, parent/student portals) are **not built yet** — see [docs/ROADMAP.md](docs/ROADMAP.md) for an honest list. Testing: a smoke-test suite for the Phase 8 modules and CSRF behaviour ships in `tests/smoke` (see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#testing)); earlier phases were verified with throwaway scripts that were not kept, and a proper `pytest` suite is on the roadmap.
+It brings academic administration, student and staff records, attendance, examinations, fee collection, school finances, and communication into a unified system.
 
-## What works today
+> **Data-driven by design:** Every number displayed is calculated from actual database records. There is no preloaded demo data — each newly registered school starts with a clean workspace.
 
-| Area | Highlights |
+<p align="center">
+  <strong>Admissions</strong> • <strong>Academics</strong> • <strong>Attendance</strong> • <strong>Examinations</strong> • <strong>Fees</strong> • <strong>Payroll</strong> • <strong>Communication</strong>
+</p>
+
+---
+
+## 🚧 Development Progress
+
+<text-placeholder></text-placeholder>
+
+**<span>8 of 12 phases completed</span>** — the core academic, financial, and communication workflows are implemented.
+
+| Phase | Progress |
 |---|---|
-| **Accounts & access** | School self-registration, email verification, login/logout, password reset, four staff roles with server-side enforcement, per-school data isolation, audit trail |
-| **Academic setup** | Academic sessions (one active at a time), classes, sections, subjects, school-wide period grid |
-| **People** | Students (with enrollment history), guardians shared across siblings, teachers, non-teaching staff, secure document upload |
-| **Attendance** | Daily student and teacher attendance, attendance %, low-attendance report, leave requests that sync into attendance on approval |
-| **Timetable** | Weekly grid per class/section, teacher and daily views, teacher/room/class clash prevention |
-| **Examinations** | Exams, per-subject papers, validated marks entry, configurable grade bands, results with pass/fail and ranking, report-card PDFs with remarks |
-| **Student fees** | Fee types, individual and bulk assignment, partial payments, receipts (PDF), discounts with recorded reasons, defaulters report, fee statements (PDF) |
-| **School finance** | Expense categories and expenses, teacher/staff salary records and salary slips (PDF), teacher self-service salary history, cash-basis financial summary |
-| **Communication** | Notices by audience (draft / publish / archive / expiry), school calendar with holidays, homework with teacher-recorded submissions, parent–teacher meeting scheduling with slot booking, in-app notifications for staff, email to guardians with a delivery log and retry, fee reminders |
+| Phase 0–8 | <badge>Complete</badge> |
+| Phase 9–12 | <badge color="warning">In progress / Planned</badge> |
 
-Role-by-role details: [docs/ROLES_AND_PERMISSIONS.md](docs/ROLES_AND_PERMISSIONS.md). Step-by-step workflows: [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
+The following planned features are not yet implemented:
 
-## Tech stack
+- Dashboard statistics and additional reporting
+- Student promotion and transfer workflows
+- Student and staff ID cards
+- Data import and export
+- In-app backup and restore
+- Additional settings screens
+- Parent and student portals
 
-- **Backend:** Python 3.10+ (developed on 3.12), Flask 3, SQLAlchemy 2.0, Flask-Migrate/Alembic, Flask-Login, Flask-WTF (CSRF), Flask-Bcrypt, Flask-Mail
-- **Database:** PostgreSQL 14+ (tested on 16)
-- **PDFs:** ReportLab (pure Python — no system libraries to install on Windows)
-- **Frontend:** Server-rendered Jinja2 templates, Bootstrap 5 and Bootstrap Icons loaded from a CDN (internet access needed in the browser), a little vanilla JavaScript
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the authoritative development status and known limitations.
 
-## Quick start (Windows)
+---
 
-Full instructions, including PostgreSQL and Gmail setup, are in [docs/INSTALLATION.md](docs/INSTALLATION.md). In short:
+## ✨ Features
+
+### 🔐 Authentication & School Management
+- School self-registration
+- Email verification and password reset
+- Login and logout
+- Four staff roles with server-side permission enforcement
+- Multi-tenant school data isolation
+- Audit trail for important operations
+
+### 🎓 Academic Administration
+- Academic session management
+- One active academic session at a time
+- Class and section management
+- Subject management
+- School-wide period grid
+
+### 👥 Student & Staff Records
+- Student profiles with enrollment history
+- Guardians shared across siblings
+- Teacher management
+- Non-teaching staff management
+- Secure document uploads
+
+### 📅 Attendance Management
+- Daily student attendance
+- Daily teacher attendance
+- Attendance percentage calculations
+- Low-attendance reports
+- Leave requests synchronized with attendance after approval
+
+### 🗓️ Timetable Management
+- Weekly class and section timetables
+- Teacher timetable views
+- Daily timetable views
+- Teacher, room, and class clash prevention
+
+### 📝 Examination & Results
+- Examination management
+- Subject-wise examination papers
+- Validated marks entry
+- Configurable grade bands
+- Pass/fail calculations and student rankings
+- PDF report cards with remarks
+
+### 💳 Student Fee Management
+- Custom fee types
+- Individual and bulk fee assignment
+- Partial fee payments
+- PDF payment receipts
+- Discounts with recorded reasons
+- Fee defaulter reports
+- PDF student fee statements
+
+### 💰 Finance & Payroll
+- Expense categories and expense records
+- Teacher and staff salary records
+- PDF salary slips
+- Teacher self-service salary history
+- Cash-basis financial summaries
+
+### 📢 School Communication
+- Notices with draft, publish, archive, and expiry workflows
+- Audience-based notices
+- School calendar and holidays
+- Homework assignments and teacher-recorded submissions
+- Parent–teacher meeting scheduling
+- Meeting slot booking
+- In-app staff notifications
+- Guardian emails with delivery logs and retry support
+- Fee reminders
+
+For complete role-level functionality, see [`docs/ROLES_AND_PERMISSIONS.md`](docs/ROLES_AND_PERMISSIONS.md) and [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md).
+
+---
+
+## 🛠️ Technology Stack
+
+| Component | Technology |
+|---|---|
+| Programming Language | Python 3.10+ |
+| Backend Framework | Flask 3 |
+| ORM | SQLAlchemy 2.0 |
+| Database | PostgreSQL 14+ |
+| Database Migrations | Flask-Migrate / Alembic |
+| Authentication | Flask-Login |
+| Forms & CSRF | Flask-WTF |
+| Password Hashing | Flask-Bcrypt |
+| Email | Flask-Mail |
+| PDF Generation | ReportLab |
+| Templates | Jinja2 |
+| UI Framework | Bootstrap 5 |
+| Icons | Bootstrap Icons |
+| Client-side Logic | Vanilla JavaScript |
+
+<text>**Development environment:** Python 3.12 and PostgreSQL 16.</text>
+
+Bootstrap and Bootstrap Icons are loaded from a CDN, so an internet connection is required for those browser assets.
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+
+Install the following before starting:
+
+- Python 3.10 or newer
+- PostgreSQL 14 or newer
+- Git
+- Gmail account with an App Password (if using Gmail for email delivery)
+
+### 1. Clone the Repository
+
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd SMS
+```
+
+### 2. Create a Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+Activate it on Windows:
 
 ```bat
-cd D:\SMS
-python -m venv venv
 venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
+
+### 4. Configure Environment Variables
+
+Create your environment file:
+
+```bat
 copy .env.example .env
-:: edit .env: SECRET_KEY, DATABASE_URL, MAIL_USERNAME, MAIL_PASSWORD
-:: create the database first (see docs/INSTALLATION.md), then:
+```
+
+Open `.env` and configure the required values:
+
+```env
+SECRET_KEY=your-secret-key
+DATABASE_URL=your-postgresql-database-url
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-gmail-app-password
+```
+
+Use the exact variable names and format specified in `.env.example`.
+
+### 5. Create the PostgreSQL Database
+
+Create the application database and configure its credentials.
+
+Follow [`docs/INSTALLATION.md`](docs/INSTALLATION.md) for the complete PostgreSQL setup instructions.
+
+### 6. Apply Database Migrations
+
+For Windows Command Prompt:
+
+```bat
 set FLASK_APP=run.py
 flask db upgrade
+```
+
+For PowerShell:
+
+```powershell
+$env:FLASK_APP = "run.py"
+flask db upgrade
+```
+
+This applies the database migrations and creates the required tables.
+
+### 7. Run the Application
+
+```bash
 python run.py
 ```
 
-Then open <http://127.0.0.1:5000/auth/register> to register your school. (PowerShell: use `$env:FLASK_APP = "run.py"` instead of `set`.)
+Open the registration page:
 
-> **Important:** `flask db upgrade` creates all tables. If you skip it, logging in fails with `relation "users" does not exist` — see [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+<http://127.0.0.1:5000/auth/register>
 
-## Documentation
+Register your school to create its initial workspace.
 
-| Document | What it covers |
+> **Important:** Always run `flask db upgrade` before using a fresh database. Skipping migrations can cause errors such as `relation "users" does not exist`. See [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) for solutions.
+
+For complete installation instructions, including PostgreSQL and Gmail configuration, read [`docs/INSTALLATION.md`](docs/INSTALLATION.md).
+
+---
+
+## 🧪 Testing
+
+The current project includes a smoke-test suite for Phase 8 modules and CSRF behavior.
+
+Run the smoke tests:
+
+```bash
+python tests/smoke/run_all.py
+```
+
+Check POST forms for CSRF tokens:
+
+```bash
+python tools/check_csrf.py
+```
+
+**Current testing status:**
+- Phase 8 smoke tests are maintained in `tests/smoke`.
+- CSRF behavior is included in the smoke-test coverage.
+- Earlier phases were verified using temporary scripts that were not retained.
+- A comprehensive maintained `pytest` suite is planned.
+
+See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md#testing) for testing details.
+
+---
+
+## 🏗️ Project Structure
+
+```text
+SMS/
+│
+├── app/
+│   ├── __init__.py          # Application factory and blueprint registration
+│   ├── extensions.py        # Database, login, mail, CSRF, bcrypt, migrations
+│   │
+│   ├── models/              # SQLAlchemy models
+│   ├── forms/               # Flask-WTF forms
+│   ├── routes/              # Feature-specific blueprints
+│   ├── services/            # Business logic, calculations, PDFs, email, audit
+│   ├── utils/               # Decorators, tenant helpers, tokens, uploads
+│   └── templates/           # Jinja2 templates and UI layouts
+│
+├── migrations/
+│   └── versions/            # Alembic database migrations
+│
+├── tests/
+│   └── smoke/               # Phase 8 and CSRF smoke tests
+│
+├── tools/
+│   ├── generate_docs.py     # Regenerates generated documentation
+│   └── check_csrf.py        # Checks POST forms for CSRF protection
+│
+├── docs/                    # Project documentation
+│
+├── config.py                # Environment-based configuration
+├── run.py                   # Development server entry point
+├── requirements.txt         # Pinned dependencies
+├── .env.example             # Environment configuration template
+└── README.md
+```
+
+---
+
+## 🧠 Architecture & Design Principles
+
+The system follows a data-driven architecture designed to keep records consistent and preserve historical information.
+
+**1. Calculate derived data**
+
+Attendance percentages, examination results, fee balances, and net salaries are calculated from underlying database records instead of being stored as independently editable totals.
+
+**2. Preserve historical records**
+
+Student class assignments are maintained through enrollment records, and attendance records retain the class information associated with the original attendance entry.
+
+**3. Validate at multiple levels**
+
+Important business rules are checked in the application, while database constraints provide an additional layer of protection.
+
+**4. Maintain separation of responsibilities**
+
+The application separates models, forms, routes, services, and utilities to keep business logic organized and maintainable.
+
+**5. Enforce school-level isolation**
+
+Each school's data is scoped to its own tenant, preventing unauthorized access to another school's records.
+
+Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the detailed architecture and design decisions.
+
+---
+
+## 🔒 Security
+
+Security mechanisms currently implemented include:
+
+- Bcrypt password hashing
+- CSRF protection on every form
+- HttpOnly and SameSite session cookies
+- Signed, expiring email tokens
+- File upload validation based on file content
+- Strict per-school data scoping
+- Server-side role and permission enforcement
+- Audit logging of important actions
+
+### Known Security Limitations
+
+The following gaps are important to understand before public deployment:
+
+| Area | Current limitation |
 |---|---|
-| [docs/INSTALLATION.md](docs/INSTALLATION.md) | Prerequisites, PostgreSQL, `.env` settings, Gmail App Password, first run, production notes, backups |
-| [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | First-time setup checklist and day-to-day workflows for every module |
-| [docs/ROLES_AND_PERMISSIONS.md](docs/ROLES_AND_PERMISSIONS.md) | Who can do what, ownership rules, account creation flows |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the app is structured, multi-tenancy, security measures, design principles |
-| [docs/DATABASE.md](docs/DATABASE.md) | Database conventions, migrations, backup/restore |
-| [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) | Every table, column and constraint *(generated)* |
-| [docs/ROUTES.md](docs/ROUTES.md) | Every URL and the roles allowed *(generated)* |
-| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Conventions, adding a module, migrations workflow, testing notes, known gotchas |
-| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Real errors and their fixes |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | What is not built yet, and known limitations |
-| [CHANGELOG.md](CHANGELOG.md) | What each phase delivered |
+| Login protection | No login rate-limiting or account lockout |
+| School registration | Open to anyone who can access the application |
+| Password reset | Reset links are not single-use and remain valid until expiration |
 
-## Project layout
+These protections are not implemented yet. Review [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#security-measures-and-known-gaps) before exposing the application publicly.
 
-```
-run.py                  Development server entry point (binds 127.0.0.1 by default)
-config.py               Settings read from environment / .env
-requirements.txt        Pinned dependencies
-.env.example            Template for your .env
-migrations/versions/    Alembic migrations (apply with `flask db upgrade`)
-tools/generate_docs.py  Regenerates the generated docs from the code
-tools/check_csrf.py     Fails if any POST form is missing its CSRF token
-tests/smoke/            Smoke tests for the Phase 8 modules + CSRF (run: python tests/smoke/run_all.py)
-docs/                   Documentation
-app/
-  __init__.py           Application factory, blueprint registration, sidebar context
-  extensions.py         db, login manager, mail, CSRF, bcrypt, migrate
-  models/               SQLAlchemy models (one file per entity)
-  forms/                Flask-WTF forms
-  routes/               Blueprints — one per module
-  services/             Business logic: calculations, PDFs, email, audit logging
-  utils/                Decorators, tenant helper, tokens, uploads, navigation
-  templates/            Jinja2 templates (shell.html is the sidebar layout)
-```
+---
 
-## Design principles in one paragraph
+## 📚 Documentation
 
-Data that can be *derived* is never stored: attendance percentages, exam results, fee balances and net salaries are computed from the underlying records every time, so they cannot drift out of sync. History is preserved: a student's class per session lives in an enrollment record, and attendance records snapshot the class they were taken in. Rules are enforced twice where it matters — friendly checks in the application *and* constraints in the database as the safety net. Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Detailed documentation is available for installation, usage, development, and maintenance.
 
-## Security at a glance
+| Document | Description |
+|---|---|
+| [Installation](docs/INSTALLATION.md) | Prerequisites, PostgreSQL, environment variables, Gmail, first run, production notes, and backups |
+| [User Guide](docs/USER_GUIDE.md) | First-time setup and day-to-day workflows |
+| [Roles & Permissions](docs/ROLES_AND_PERMISSIONS.md) | Staff roles, access rules, and account ownership |
+| [Architecture](docs/ARCHITECTURE.md) | Application structure, multi-tenancy, security, and design principles |
+| [Database](docs/DATABASE.md) | Database conventions, migrations, backup, and restore |
+| [Database Schema](docs/DATABASE_SCHEMA.md) | Generated tables, columns, and constraints |
+| [Routes](docs/ROUTES.md) | Generated application routes and permitted roles |
+| [Development](docs/DEVELOPMENT.md) | Coding conventions, module development, migrations, and testing |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Known errors and their solutions |
+| [Roadmap](docs/ROADMAP.md) | Planned features and known limitations |
+| [Changelog](CHANGELOG.md) | Phase-by-phase development history |
 
-Bcrypt password hashing, CSRF protection on every form (checked by `tools/check_csrf.py`), HttpOnly/SameSite session cookies, signed expiring email tokens, upload validation by file *content* (not just extension), strict per-school data scoping, role checks on the server for every protected route, and an audit trail of important actions.
+---
 
-Known gaps you should be aware of before exposing it publicly: **there is no login rate-limiting/lockout, school registration is open to anyone who can reach the site, and password-reset links are valid until they expire rather than single-use.** See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#security-measures-and-known-gaps).
+## 🗺️ Future Development
 
-## License
+The remaining development work focuses on expanding the platform with:
 
-No license has been chosen yet, so all rights are reserved by default. Add a `LICENSE` file before sharing the code publicly.
+- More comprehensive dashboards and statistics
+- Student promotion and transfer management
+- ID card generation
+- Import and export functionality
+- In-app backup and restore
+- Additional school settings
+- Parent and student portals
+- Comprehensive automated testing
+
+The complete and authoritative list is maintained in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+---
+
+## 📄 License
+
+**No license has been selected yet.**
+
+Until a license is added, all rights are reserved by default. Add a `LICENSE` file before publicly distributing the source code or granting others permission to use, modify, or redistribute it.
+
+---
+
+<p align="center">
+  <strong>School Management System</strong><br>
+  Simplifying academic administration and everyday school operations.
+</p>
