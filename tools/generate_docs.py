@@ -39,6 +39,7 @@ GROUPS = [
     ("Student fees (Phase 6)", ["fee_types", "student_fees", "fee_discounts", "fee_payments"]),
     ("School finance (Phase 7)", ["expense_categories", "expenses", "salary_records"]),
     ("Communication (Phase 8)", ["notices", "events", "homework", "homework_submissions", "ptm_meetings", "ptm_appointments", "notifications"]),
+    ("Student lifecycle (Phase 9)", ["promotion_batches", "promotion_items", "transfer_records"]),
 ]
 
 

@@ -20,6 +20,9 @@ class StudentEnrollment(db.Model, TimestampMixin):
             "session_id", "class_id", "section_id", "roll_number",
             name="uq_enrollment_roll_per_section_session",
         ),
+        # A student is in exactly one class/section per session. Promotion relies on this: it can never
+        # enrol the same student twice in the target session, even if the application check is bypassed.
+        UniqueConstraint("student_id", "session_id", name="uq_enrollment_student_session"),
     )
 
     id = db.Column(db.Integer, primary_key=True)

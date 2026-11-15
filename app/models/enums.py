@@ -222,3 +222,27 @@ class NotificationType(str, enum.Enum):
     LEAVE = "leave"
     ATTENDANCE = "attendance"
     RESULT = "result"
+
+
+# ---- Phase 9: student lifecycle -------------------------------------------------
+
+class PromotionBatchStatus(str, enum.Enum):
+    DRAFT = "draft"          # being prepared; nothing has changed yet
+    APPLIED = "applied"      # applied atomically; enrollments created/closed
+
+
+class PromotionDecision(str, enum.Enum):
+    PROMOTE = "promote"      # move up to a class in the target session
+    REPEAT = "repeat"        # stay at the same level, in the target session
+    GRADUATE = "graduate"    # finished the school's last class
+    HOLD = "hold"            # leave out of this run (not processed)
+
+
+class TransferType(str, enum.Enum):
+    TRANSFER_OUT = "transfer_out"    # moving to another school
+    WITHDRAWAL = "withdrawal"        # leaving without a transfer
+
+
+class TransferStatus(str, enum.Enum):
+    ACTIVE = "active"
+    REVERSED = "reversed"            # the exit was undone (student re-admitted)

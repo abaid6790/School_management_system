@@ -26,6 +26,7 @@ class AcademicSession(db.Model, TimestampMixin):
             "school_id",
             unique=True,
             postgresql_where=db.text("is_active = true"),
+            sqlite_where=db.text("is_active = 1"),     # same rule on SQLite (dev/tests); without it SQLite made this a plain unique index
         ),
     )
 

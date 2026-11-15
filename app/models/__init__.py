@@ -34,6 +34,9 @@ from app.models.homework_submission import HomeworkSubmission
 from app.models.ptm_meeting import PTMMeeting
 from app.models.ptm_appointment import PTMAppointment
 from app.models.notification import Notification
+from app.models.promotion_batch import PromotionBatch
+from app.models.promotion_item import PromotionItem
+from app.models.transfer_record import TransferRecord
 
 __all__ = [
     "School",
@@ -75,4 +78,7 @@ __all__ = [
     "PTMMeeting",
     "PTMAppointment",
     "Notification",
+    "PromotionBatch",
+    "PromotionItem",
+    "TransferRecord",
 ]
